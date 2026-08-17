@@ -39,11 +39,11 @@ export const wedding = {
   /* ── The couple ──────────────────────────────────────────── */
   couple: {
     /** Shown first, before the ampersand. */
-    partnerOne: "[BRIDE FIRST NAME]",
+    partnerOne: "Analiza",
     /** Shown second. */
-    partnerTwo: "[GROOM FIRST NAME]",
-    /** Used in the footer and browser tab, e.g. "Ana & John". */
-    shortNames: "[BRIDE] & [GROOM]",
+    partnerTwo: "John Wilson",
+    /** Used in the footer, nav and browser tab. Keep it short. */
+    shortNames: "Analiza & John Wilson",
   },
 
   /* ── The date ────────────────────────────────────────────── */
