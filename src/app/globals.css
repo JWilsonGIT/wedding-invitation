@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+/*
+  ─────────────────────────────────────────────────────────────
+  PALETTE — white with pink accents.
+
+  Pink on white is a contrast trap: every pretty pink fails
+  WCAG AA as body text. So each pink has ONE allowed role.
+  Verified contrast ratios against #FFFFFF:
+
+    rose-400  #E2A0B8   1.9:1  → DECORATION ONLY (rules, icons)
+    rose-500  #C9718E   3.4:1  → LARGE DISPLAY TEXT ONLY (>=24px)
+    rose-600  #A8536F   5.1:1  → ALL body text, links, buttons  ✅ AA
+
+  Never put small text in rose-400 or rose-500.
+
+  Note: rose-400/500/600 intentionally override Tailwind's
+  built-in rose scale. Do not reach for other rose shades
+  (rose-300, rose-700, …) — they are Tailwind's defaults and
+  will not match this palette.
+  ─────────────────────────────────────────────────────────────
+*/
+
+@theme {
+  /* Surfaces */
+  --color-blush-50: #fff9fa; /* alternating section wash */
+  --color-blush-100: #fdeff3; /* cards */
+  --color-blush-200: #f7dce5; /* borders, swatches, dividers */
+
+  /* Pinks — see role table above */
+  --color-rose-400: #e2a0b8;
+  --color-rose-500: #c9718e;
+  --color-rose-600: #a8536f;
+  --color-rose-700: #8d4159; /* hover / pressed on rose-600 fills */
+
+  /* Ink */
+  --color-ink-900: #2f2629; /* headings */
+  --color-ink-600: #6b5a60; /* body */
+  --color-ink-400: #9c8b91; /* meta, labels */
+
+  /* Type */
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Motion */
+  --ease-gentle: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/*
+  Light mode only, deliberately. A wedding invitation has one
+  correct look — we do not honour prefers-color-scheme: dark.
+*/
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+  background-color: #ffffff;
+}
+
+body {
+  background-color: #ffffff;
+  color: var(--color-ink-600);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Anchor targets must clear the sticky nav */
+[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+::selection {
+  background-color: var(--color-blush-200);
+  color: var(--color-ink-900);
+}
+
+/* Visible, on-palette focus ring — keyboard users included */
+:focus-visible {
+  outline: 2px solid var(--color-rose-600);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Reveal-on-scroll, progressively enhanced ─────────────────
+   Starts visible. The Reveal component adds [data-reveal] only
+   once JS is running, so no-JS guests still see everything. */
+[data-reveal="hidden"] {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+[data-reveal="shown"] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s var(--ease-gentle),
+    transform 0.7s var(--ease-gentle);
+}
