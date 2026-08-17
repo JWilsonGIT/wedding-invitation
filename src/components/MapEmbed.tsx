@@ -10,20 +10,30 @@
  */
 
 type Props = {
-  /** Free-text place search, e.g. "Max's Restaurant Scout Tobias, Quezon City". */
+  /** Free-text place search, e.g. "Max's Restaurant Manila East Road, Binangonan". */
   query: string;
   /** Exact Google Maps share link. Far more accurate than a text search. */
   mapsUrl?: string;
+  /** "lat,lng" if known — see below for why Waze needs it. */
+  coords?: string;
   /** Venue name, used for the iframe's accessible title. */
   venue: string;
 };
 
-export function MapEmbed({ query, mapsUrl, venue }: Props) {
+export function MapEmbed({ query, mapsUrl, coords, venue }: Props) {
   const encoded = encodeURIComponent(query);
 
+  /* Google keeps the text query so the pin arrives labelled with the place
+     name, its hours and photos — more use to a guest than a bare dot. */
   const embedSrc = `https://www.google.com/maps?q=${encoded}&output=embed`;
   const googleHref = mapsUrl ?? `https://www.google.com/maps/search/?api=1&query=${encoded}`;
-  const wazeHref = `https://waze.com/ul?q=${encoded}&navigate=yes`;
+
+  /* Waze gets coordinates whenever we have them. It cannot interpret a Plus
+     Code at all and is unreliable with long address strings, so `ll` is the
+     difference between a guest navigating and a guest calling you. */
+  const wazeHref = coords
+    ? `https://waze.com/ul?ll=${coords}&navigate=yes`
+    : `https://waze.com/ul?q=${encoded}&navigate=yes`;
 
   return (
     <div className="mt-7">

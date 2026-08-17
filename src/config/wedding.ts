@@ -31,6 +31,15 @@ export type WeddingEvent = {
    * uses it instead of a text search, which is far more accurate.
    */
   mapsUrl?: string;
+  /**
+   * Exact coordinates, "lat,lng".
+   *
+   * Worth filling in: Waze cannot interpret a Plus Code and is unreliable
+   * with long address strings, so the Waze link uses these when present and
+   * only falls back to a text search without them. Get them by right-clicking
+   * the spot in Google Maps — the first item in the menu is the lat,lng.
+   */
+  coords?: string;
   /** One short line of practical guidance. Optional. */
   note?: string;
 };
@@ -59,17 +68,25 @@ export const wedding = {
       label: "The Ceremony",
       venue: "[CHURCH NAME]",
       time: "[2:00 PM]",
-      address: "[Church street address, Barangay, City, Province]",
-      mapsQuery: "[Church Name, City, Philippines]",
+      address: "G4FX+CWC Doña Aurora St, Angono, Rizal",
+      /* A Plus Code pins an exact spot rather than guessing at a street,
+         so this is more accurate than any text search. Keep the locality
+         ("Angono, Rizal") — a short Plus Code needs it to resolve. */
+      mapsQuery: "G4FX+CWC Angono, Rizal, Philippines",
+      /* Verified: this is where the Plus Code above resolves. */
+      coords: "14.5235625,121.1497656",
       note: "Please be seated fifteen minutes before the ceremony begins.",
     },
     {
       id: "gathering",
       label: "The Gathering",
-      venue: "Max's Restaurant — [BRANCH NAME]",
+      venue: "Max's Restaurant — Binangonan",
       time: "[Right after the ceremony]",
-      address: "[Max's branch street address, City, Province]",
-      mapsQuery: "[Max's Restaurant Branch Name, City, Philippines]",
+      address: "Manila East Rd, Brgy. Pag-asa, Binangonan, Rizal",
+      mapsQuery: "Max's Restaurant Manila East Road, Pag-asa, Binangonan, Rizal, Philippines",
+      /* Verified: this query resolves to the single place "Max's Binangonan",
+         about 900m from the church — roughly a five-minute drive. */
+      coords: "14.5253098,121.158075",
       note: "A relaxed lunch together — no program, no speeches. Come hungry.",
     },
   ] satisfies WeddingEvent[],

@@ -43,6 +43,7 @@ export function EventCard({ event, index }: { event: WeddingEvent; index: number
         <MapEmbed
           query={event.mapsQuery}
           mapsUrl={event.mapsUrl}
+          coords={event.coords}
           venue={event.venue}
         />
       </div>
