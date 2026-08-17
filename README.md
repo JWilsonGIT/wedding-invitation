@@ -216,10 +216,13 @@ after a tap, which would strand a card mid-tilt.
 
 ### Petals on the wind
 
-A fixed layer of drifting blossom petals (`Petals`, `.petal-field`). No
+A fixed layer of 34 drifting blossom petals (`Petals`, `.petal-field`). No
 JavaScript — it is a server component emitting CSS custom properties, and the
 animation runs on the compositor.
 
+- **Three depths.** Far petals are small, slow and faint; near ones are large,
+  fast and blurred. The blur is depth of field — it is what stops the field
+  reading as one flat sheet of confetti.
 - **Two nested elements per petal.** One element has one `transform`, so the
   wind path and the tumble cannot share it. The outer carries the drift, the
   inner spins on an unrelated clock — which is why no two petals ever visibly
@@ -229,12 +232,24 @@ animation runs on the compositor.
   mismatch.
 - **z-40**: above the page so petals pass in front of the photographs, below
   the nav (z-50) and the lightbox (z-60).
-- Mobile shows 10 of the 18; `prefers-reduced-motion` hides them entirely.
+- Mobile shows the first 16, which are ordered to span all three depths;
+  `prefers-reduced-motion` hides them entirely.
+
+Two things to preserve if you edit this:
+
+1. **Tone matters more than count.** The first version used near-white petals,
+   which are close to invisible on a white page — no amount of extra petals
+   fixes that. The current tones lead with rose-400/500 and separate from the
+   background at about 2.9:1.
+2. **Blur belongs on a modifier class**, not `filter: blur(var(--x, 0px))` on
+   every petal. An unset variable resolves to `blur(0px)`, which is not the
+   same as no filter — it still forces a filter pass and a stacking context on
+   every element.
 
 To change the density, edit the `PETALS` array in `src/components/Petals.tsx` —
-each entry is one petal. To confine them to the hero instead of the whole page,
-move `<Petals />` inside `Hero` and change `.petal-field` from `fixed` to
-`absolute`.
+each entry is one petal, and deleting lines is the whole edit. To confine them
+to the hero instead of the whole page, move `<Petals />` inside `Hero` and
+change `.petal-field` from `fixed` to `absolute`.
 
 ### Motion — 3D scroll and parallax
 
