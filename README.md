@@ -225,7 +225,8 @@ join hands as the page runs out (`CoupleWalk`, `.couple-scene`).
 | 0 → 86% | he walks, gait bound to scroll |
 | 86 → 93% | his stride settles into a stand |
 | 86 → 99% | both reach out; their hands meet |
-| 90 → 100% | a heart blooms between them |
+| 88 → 96% | small hearts start rising around them |
+| 90 → 100% | a heart blooms above their heads and turns |
 
 - **His stride is on the scroll timeline too**, at 11 strides across the page.
   With a scroll timeline, iterations divide the scroll *range* rather than
@@ -249,6 +250,16 @@ join hands as the page runs out (`CoupleWalk`, `.couple-scene`).
   complements of the held stride (`-20°` held, `+20°` settled → upright), and
   the arm groups add the reach. **If you change the gait keyframes, the settle
   values must change with them.**
+- **The celebration is layered so no two animations share a property.** The
+  heart's pop-in owns `opacity`/`scale`/`translate` and is scroll-driven; a
+  nested element owns `rotate` and turns on its own clock. The small hearts are
+  gated by scroll but rise on a time-based loop, so they keep going once you
+  have reached the bottom instead of freezing when you stop scrolling.
+- **`.cw-celebrate` extends leftward only.** Centring it on the couple pushed
+  its right edge past the viewport on mobile — they stand at the edge, so there
+  is no room that side, and hearts there were clipped away. The box hugs the
+  right edge instead, and the big heart is nudged back by half the padding to
+  sit over the couple's true centre.
 - **`--meet-gap` is a fraction of figure height, not a fixed pixel value.**
   Their element boxes touching still leaves a gap between the drawn figures,
   because each SVG carries internal padding — and that gap scales with the

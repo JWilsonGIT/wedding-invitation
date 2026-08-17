@@ -30,15 +30,91 @@ export function CoupleWalk() {
     <div className="couple-scene" aria-hidden="true">
       <Groom />
       <Bride />
-      <span className="cw-heart">
-        <svg viewBox="0 0 24 24" width="100%" height="100%">
-          <path
-            d="M12 21s-8-4.9-8-10.4A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 8 3.6C20 16.1 12 21 12 21Z"
-            fill="var(--color-rose-500)"
-          />
-        </svg>
-      </span>
+      <Celebration />
     </div>
+  );
+}
+
+function HeartShape({ fill }: { fill: string }) {
+  return (
+    <svg viewBox="0 0 24 24" width="100%" height="100%" role="presentation">
+      <path
+        d="M12 21s-8-4.9-8-10.4A4.6 4.6 0 0 1 12 7a4.6 4.6 0 0 1 8 3.6C20 16.1 12 21 12 21Z"
+        fill={fill}
+      />
+    </svg>
+  );
+}
+
+/*
+  Small hearts rising around the couple. Hand-picked rather than random, for
+  the same reason as the petals: `Math.random()` would differ between the
+  server render and the client and trip a hydration mismatch.
+
+  x / y are percentages of the celebration box, so they scale with the figures
+  instead of drifting out of place on mobile.
+*/
+const SPARKS = [
+  { x: 5, y: 16, size: 9, duration: 3.0, delay: 0, drift: -7 },
+  { x: 19, y: 45, size: 7, duration: 3.7, delay: 0.9, drift: 5 },
+  { x: 32, y: 7, size: 11, duration: 2.6, delay: 1.8, drift: -4 },
+  { x: 46, y: 57, size: 8, duration: 3.3, delay: 0.4, drift: 8 },
+  { x: 59, y: 25, size: 10, duration: 2.9, delay: 2.3, drift: -8 },
+  { x: 73, y: 51, size: 7, duration: 3.9, delay: 1.3, drift: 4 },
+  { x: 85, y: 13, size: 9, duration: 3.1, delay: 2.7, drift: -5 },
+  /* Drift kept negative on the rightmost hearts: the box already ends at the
+     viewport edge, so a positive drift would carry them off-screen. */
+  { x: 92, y: 37, size: 6, duration: 4.2, delay: 0.6, drift: -6 },
+];
+
+const SPARK_TONES = [
+  "var(--color-rose-400)",
+  "var(--color-rose-500)",
+  "var(--color-rose-600)",
+];
+
+/**
+ * The heart above their heads, plus the small ones rising around them.
+ *
+ * Layered so no two animations compete for one property — which is the whole
+ * reason this is three nested elements rather than one:
+ *   .cw-heart       scroll-driven pop-in (opacity, scale, translate)
+ *   .cw-heart-spin  time-based rotation (rotate only)
+ *
+ * The box is centred on the pair using `margin`, not a transform, so the
+ * animations above are free to own `translate` outright.
+ */
+function Celebration() {
+  return (
+    <span className="cw-celebrate">
+      <span className="cw-heart">
+        <span className="cw-heart-spin">
+          <HeartShape fill="var(--color-rose-500)" />
+        </span>
+      </span>
+
+      <span className="cw-sparks">
+        {SPARKS.map((spark, index) => (
+          <span
+            key={index}
+            className="cw-spark"
+            style={
+              {
+                left: `${spark.x}%`,
+                bottom: `${spark.y}%`,
+                width: `${spark.size}px`,
+                height: `${spark.size}px`,
+                "--spark-duration": `${spark.duration}s`,
+                "--spark-delay": `${spark.delay}s`,
+                "--spark-drift": `${spark.drift}px`,
+              } as React.CSSProperties
+            }
+          >
+            <HeartShape fill={SPARK_TONES[index % SPARK_TONES.length]} />
+          </span>
+        ))}
+      </span>
+    </span>
   );
 }
 
