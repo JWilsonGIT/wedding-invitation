@@ -14,8 +14,14 @@ export type WeddingEvent = {
   id: string;
   /** Small label above the venue, e.g. "The Ceremony". */
   label: string;
-  /** Venue name, e.g. "Santo Niño Parish Church". */
+  /** Venue name, e.g. "Santo Niño Parish Church". Keep it to the name. */
   venue: string;
+  /**
+   * Optional small line under the venue name — a diocese, a hall name,
+   * a floor. Keeps `venue` short enough to sit in the hero line and in
+   * the RSVP confirmation without swallowing them.
+   */
+  venueMeta?: string;
   /** Displayed as written, e.g. "2:00 PM". */
   time: string;
   /** Full street address, shown under the venue name. */
@@ -66,15 +72,17 @@ export const wedding = {
     {
       id: "ceremony",
       label: "The Ceremony",
-      venue: "[CHURCH NAME]",
+      venue: "Diocesan Shrine and Parish of Saint Clement",
+      venueMeta: "Diocese of Antipolo",
       time: "[2:00 PM]",
-      address: "G4FX+CWC Doña Aurora St, Angono, Rizal",
-      /* A Plus Code pins an exact spot rather than guessing at a street,
-         so this is more accurate than any text search. Keep the locality
-         ("Angono, Rizal") — a short Plus Code needs it to resolve. */
-      mapsQuery: "G4FX+CWC Angono, Rizal, Philippines",
-      /* Verified: this is where the Plus Code above resolves. */
-      coords: "14.5235625,121.1497656",
+      address: "Doña Aurora St, Poblacion Ibaba, Angono, Rizal",
+      /* This is the church's exact name on Google Maps, so it resolves to
+         the listing itself — the pin arrives labelled rather than as a bare
+         dot. Cross-checked against the Plus Code G4FX+CWC: both land within
+         1 metre of each other, so the two confirm one another. */
+      mapsQuery:
+        "Diocesan Shrine and Parish of Saint Clement - Poblacion Ibaba, Angono, Rizal (Diocese of Antipolo)",
+      coords: "14.5235697,121.1497727",
       note: "Please be seated fifteen minutes before the ceremony begins.",
     },
     {

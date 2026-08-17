@@ -26,6 +26,12 @@ export function EventCard({ event, index }: { event: WeddingEvent; index: number
         {event.venue}
       </h3>
 
+      {event.venueMeta ? (
+        <p className="mt-2 text-[0.7rem] tracking-[0.18em] text-ink-400 uppercase">
+          {event.venueMeta}
+        </p>
+      ) : null}
+
       <p className="mt-3 font-display text-lg text-rose-600">{event.time}</p>
 
       <address className="mt-3 text-sm leading-relaxed text-ink-600 not-italic">
