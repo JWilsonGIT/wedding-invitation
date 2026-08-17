@@ -2,7 +2,9 @@
 
 /*
   ─────────────────────────────────────────────────────────────
-  PALETTE — white with pink accents.
+  PALETTE — white, with pink and gray accents.
+  Pink for the bride's side and every primary action; gray for the
+  gentlemen and everything practical.
 
   Pink on white is a contrast trap: every pretty pink fails
   WCAG AA as body text. So each pink has ONE allowed role.
@@ -32,6 +34,36 @@
   --color-rose-500: #c9718e;
   --color-rose-600: #a8536f;
   --color-rose-700: #8d4159; /* hover / pressed on rose-600 fills */
+
+  /*
+    Grays — the gentlemen's colour, and the page's second accent.
+
+    Warm-leaning (a touch of red in them) so they sit beside the pinks
+    instead of fighting them; a cold blue-gray would read as an error next
+    to these warm inks.
+
+    The division of labour: pink carries celebration and the primary
+    action, gray carries the practical and the secondary. Using gray for
+    "here is how to get there" is what keeps the pink meaning something.
+
+      gray-400  2.6:1  → DECORATION ONLY
+      gray-500  3.8:1  → large text only (>=24px)
+      gray-600  5.7:1  → body text, secondary buttons  ✅ AA
+      gray-700  8.0:1  → emphasis
+
+    The full 50–900 ramp is defined so that reaching for any shade lands
+    on this warm palette rather than half-hitting Tailwind's cool default.
+  */
+  --color-gray-50: #f8f7f7;
+  --color-gray-100: #f0eeef;
+  --color-gray-200: #e0dcde;
+  --color-gray-300: #c7c1c4;
+  --color-gray-400: #a8a0a4;
+  --color-gray-500: #8a8085;
+  --color-gray-600: #6e6469;
+  --color-gray-700: #565055;
+  --color-gray-800: #3e3a3c;
+  --color-gray-900: #2b2729;
 
   /* Ink — every tone here clears 4.5:1 on white AND on blush-100,
      so muted text stays legible wherever a section wash puts it.

@@ -4,7 +4,7 @@ import { SectionHeading } from "./SectionHeading";
 import { Reveal } from "./Reveal";
 
 export function DressCode() {
-  const { heading, intro, swatches, notes, pleaseAvoid } = wedding.dressCode;
+  const { heading, intro, parties, pleaseAvoid } = wedding.dressCode;
 
   return (
     <Section id="dress-code" tone="blush">
@@ -12,44 +12,47 @@ export function DressCode() {
         {heading}
       </SectionHeading>
 
-      <Reveal>
-        {/* Swatches. The colour name is spelled out beneath each circle —
-            colour alone is never the only cue (WCAG 1.4.1). */}
-        <ul className="mt-14 flex flex-wrap items-start justify-center gap-x-8 gap-y-7 sm:gap-x-12">
-          {swatches.map((swatch) => (
-            <li key={swatch.name} className="flex flex-col items-center gap-3">
-              <span
-                aria-hidden="true"
-                style={{ backgroundColor: swatch.hex }}
-                className="size-16 rounded-full ring-1 ring-blush-200 ring-offset-2 ring-offset-blush-50 sm:size-20"
-              />
-              <span className="text-xs tracking-[0.14em] text-ink-600 uppercase">
-                {swatch.name}
-              </span>
-            </li>
-          ))}
-        </ul>
+      {/* Split by party rather than one mixed row of colours: a guest should
+          see their own palette, not have to work out which half is theirs. */}
+      <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
+        {parties.map((party, index) => (
+          <Reveal key={party.who} delay={index * 120}>
+            <div className="flex h-full flex-col items-center rounded-xl border border-blush-200 bg-white px-6 py-8 text-center">
+              <h3 className="text-[0.7rem] font-medium tracking-[0.24em] text-rose-600 uppercase">
+                {party.who}
+              </h3>
 
-        <dl className="mx-auto mt-14 grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
-          {notes.map((note) => (
-            <div
-              key={note.who}
-              className="rounded-lg border border-blush-200 bg-white px-6 py-5 text-center"
-            >
-              <dt className="text-[0.7rem] font-medium tracking-[0.22em] text-rose-600 uppercase">
-                {note.who}
-              </dt>
-              <dd className="mt-2.5 text-base text-ink-600">{note.what}</dd>
+              <p className="mt-3 font-display text-xl leading-snug text-ink-900">
+                {party.attire}
+              </p>
+
+              {/* The colour name is spelled out under each circle — colour is
+                  never the only cue, and a guest shopping for "Dusty Rose"
+                  needs the word, not a swatch they cannot sample. */}
+              <ul className="mt-7 flex flex-wrap items-start justify-center gap-x-6 gap-y-5">
+                {party.swatches.map((swatch) => (
+                  <li key={swatch.name} className="flex w-16 flex-col items-center gap-2.5">
+                    <span
+                      aria-hidden="true"
+                      style={{ backgroundColor: swatch.hex }}
+                      className="size-14 rounded-full ring-1 ring-gray-200 ring-offset-2 ring-offset-white sm:size-16"
+                    />
+                    <span className="text-[0.65rem] leading-tight tracking-[0.1em] text-ink-600 uppercase">
+                      {swatch.name}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          ))}
-        </dl>
+          </Reveal>
+        ))}
+      </div>
 
-        {pleaseAvoid.length > 0 ? (
-          <p className="mt-8 text-center text-sm text-ink-400">
-            Kindly avoid {formatList(pleaseAvoid)}.
-          </p>
-        ) : null}
-      </Reveal>
+      {pleaseAvoid.length > 0 ? (
+        <p className="mt-9 text-center text-sm text-ink-400">
+          Kindly avoid {formatList(pleaseAvoid)}.
+        </p>
+      ) : null}
     </Section>
   );
 }

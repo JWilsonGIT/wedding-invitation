@@ -99,7 +99,9 @@ function MapLink({
       target="_blank"
       rel="noopener noreferrer"
       /* min-h-11 keeps this a comfortable phone tap target (WCAG 2.2) */
-      className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-blush-200 bg-white px-4 py-2.5 text-sm font-medium text-rose-600 transition-colors hover:border-rose-400 hover:bg-blush-50"
+      /* Gray: getting there is practical, not celebratory. Keeping these
+         off the pink means the RSVP button is the only pink button. */
+      className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:border-gray-500 hover:bg-gray-50"
     >
       {children}
       {label}

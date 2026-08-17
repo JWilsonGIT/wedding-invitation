@@ -27,7 +27,7 @@ export function EventCard({ event, index }: { event: WeddingEvent; index: number
       </h3>
 
       {event.venueMeta ? (
-        <p className="mt-2 text-[0.7rem] tracking-[0.18em] text-ink-400 uppercase">
+        <p className="mt-2 text-[0.7rem] tracking-[0.18em] text-gray-600 uppercase">
           {event.venueMeta}
         </p>
       ) : null}
@@ -39,7 +39,8 @@ export function EventCard({ event, index }: { event: WeddingEvent; index: number
       </address>
 
       {event.note ? (
-        <p className="mt-5 rounded-md border border-blush-200 bg-blush-50 px-4 py-3 text-sm leading-relaxed text-ink-600">
+        /* Gray tint — practical guidance, distinct from the romantic copy */
+        <p className="mt-5 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-relaxed text-ink-600">
           {event.note}
         </p>
       ) : null}

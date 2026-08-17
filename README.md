@@ -3,7 +3,7 @@
 A one-page wedding invitation. Ceremony at the church, then a meal together at
 Max's — no program. RSVPs land in a Google Sheet.
 
-White with soft pink accents. Next.js 16, Tailwind v4, TypeScript.
+White, with soft pink and gray accents. Next.js 16, Tailwind v4, TypeScript.
 
 ```bash
 npm run dev
@@ -146,22 +146,37 @@ function dropdown, press Run, and read the Execution log.
 
 Colours and fonts are defined once, at the top of `src/app/globals.css`.
 
+The palette is white, with **pink and gray** accents. They divide the work:
+
+- **Pink** — celebration, and the one primary action (RSVP)
+- **Gray** — the gentlemen's colour, and everything practical: directions,
+  secondary buttons, logistical notes
+- **White** — the ground
+
+Keeping "how to get there" in gray is what leaves pink meaning something. If
+every button is pink, none of them is.
+
 **One rule worth keeping.** Pink on white is a contrast trap — the prettiest
-pinks are illegible as body text. So each pink has exactly one job:
+pinks are illegible as body text. So each accent has exactly one job:
 
 | Token | Contrast on white | Use for |
 |---|---|---|
 | `rose-400` | 1.9:1 | Decoration only — rules, icons |
 | `rose-500` | 3.4:1 | Large display text only (≥24px) |
-| `rose-600` | 5.1:1 | **All** body text, links, buttons |
+| `rose-600` | 5.1:1 | **All** pink body text, links, primary buttons |
 | `rose-700` | 6.9:1 | Hover states, error text |
+| `gray-400` | 2.6:1 | Decoration only |
+| `gray-500` | 3.8:1 | Large text only (≥24px) |
+| `gray-600` | 5.7:1 | Gray body text, secondary buttons |
+| `gray-700` | 8.0:1 | Emphasis |
 
-Putting small text in `rose-400` or `rose-500` is the one change that will make
-this page look cheap and read badly. The ink tones are all ≥5:1 as well.
+Putting small text in `rose-400/500` or `gray-400` is the one change that will
+make this page look cheap and read badly. The ink tones are all ≥5:1 too.
 
-`rose-400/500/600/700` intentionally override Tailwind's built-in rose scale.
-Don't reach for other shades (`rose-300`, `rose-800`) — those are Tailwind's
-defaults and won't match.
+Both scales intentionally override Tailwind's built-ins. `gray` is defined
+across the full 50–900 ramp so any shade you reach for stays warm; `rose` is
+only defined at 400–700, so don't reach for `rose-300` or `rose-800` — those
+are Tailwind's cool defaults and won't match.
 
 ### Structure
 

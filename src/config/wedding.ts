@@ -110,20 +110,33 @@ export const wedding = {
   },
 
   /* ── Dress code ──────────────────────────────────────────────
-     Swatches render as circles. Keep to 3–5 or the strip gets busy.
-     `hex` must be a real colour; `name` is what guests read. */
+     Each party gets its own swatches, so a guest sees the colours that
+     apply to them rather than one mixed row they have to interpret.
+     Keep to 3–4 swatches each or the strip gets busy. `hex` must be a
+     real colour; `name` is what guests read. */
   dressCode: {
     heading: "What to Wear",
-    intro: "Semi-formal, in soft white and pink tones if you can.",
-    swatches: [
-      { name: "Ivory", hex: "#FBF7F4" },
-      { name: "Blush", hex: "#F7DCE5" },
-      { name: "Rose", hex: "#E2A0B8" },
-      { name: "Dusty Rose", hex: "#A8536F" },
-    ],
-    notes: [
-      { who: "Ladies", what: "Long dress or cocktail dress." },
-      { who: "Gentlemen", what: "Barong, or coat and tie." },
+    intro: "Semi-formal — the ladies in soft pinks, the gentlemen in gray.",
+    parties: [
+      {
+        who: "Ladies",
+        attire: "Long dress or cocktail dress.",
+        swatches: [
+          { name: "Ivory", hex: "#FBF7F4" },
+          { name: "Blush", hex: "#F7DCE5" },
+          { name: "Rose", hex: "#E2A0B8" },
+          { name: "Dusty Rose", hex: "#A8536F" },
+        ],
+      },
+      {
+        who: "Gentlemen",
+        attire: "Barong, or coat and tie.",
+        swatches: [
+          { name: "Light Gray", hex: "#C7C1C4" },
+          { name: "Gray", hex: "#8A8085" },
+          { name: "Charcoal", hex: "#565055" },
+        ],
+      },
     ],
     /** Colours to politely ask guests to avoid. Set to [] to hide. */
     pleaseAvoid: ["Full white", "Bright red"],

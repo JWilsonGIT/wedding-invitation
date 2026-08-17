@@ -71,7 +71,9 @@ export function Hero() {
             </a>
             <a
               href="#the-day"
-              className="inline-flex min-h-11 items-center justify-center rounded-md border border-blush-200 bg-white/70 px-7 py-3 text-sm font-medium tracking-wide text-rose-600 transition-colors hover:border-rose-400 hover:bg-white"
+              /* Gray, not pink: two pink buttons side by side compete, and
+                 only one of them is the thing we want guests to press. */
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-300 bg-white/70 px-7 py-3 text-sm font-medium tracking-wide text-gray-700 transition-colors hover:border-gray-500 hover:bg-white"
             >
               The Details
             </a>
