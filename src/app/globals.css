@@ -590,16 +590,13 @@ body {
 }
 
 /*
-  The celebration box: centred on the couple where they finally stand, tall
-  enough to reach above their heads.
+  The field the small hearts rise from: as wide as the couple where they
+  finally stand, and about as tall as they are.
 
   `--pair-w` is how wide the two of them are together. `--meet-gap` is
   negative — he steps past the point where their boxes merely touch so their
   hands meet — so it SUBTRACTS from the pair's width, which is why it is added
   here rather than removed.
-
-  Centred with `margin-right`, not a transform: the heart's own animations own
-  `translate` and `scale`, and a transform here would be overwritten.
 */
 .cw-celebrate {
   --pair-w: calc(var(--bride-w) + var(--groom-w) + var(--meet-gap));
@@ -621,30 +618,6 @@ body {
   height: calc(var(--figure-h) * 1.02);
 }
 
-/*
-  Above their heads: the figures fill the scene, so `top: 0` on a box just over
-  figure-height clears both of them.
-
-  Nudged right by half the padding, because the box extends left of the pair —
-  that puts the heart back over the true centre of the couple, not the box.
-  Centred with `margin`, not a transform: the pop animation owns `translate`.
-*/
-.cw-heart {
-  position: absolute;
-  top: 0;
-  left: calc(50% + (var(--celebrate-pad) / 2));
-  margin-left: -0.8rem;
-  width: 1.6rem;
-  height: 1.6rem;
-  opacity: 0;
-}
-
-.cw-heart-spin {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
 .cw-sparks {
   position: absolute;
   inset: 0;
@@ -655,14 +628,6 @@ body {
   position: absolute;
   display: block;
   opacity: 0;
-}
-
-@media (max-width: 640px) {
-  .cw-heart {
-    margin-left: -0.55rem;
-    width: 1.1rem;
-    height: 1.1rem;
-  }
 }
 
 /*
@@ -959,35 +924,9 @@ body {
       }
     }
 
-    /* Blooms only once they are together, and overshoots slightly on the way
-       in so it lands rather than merely fades up */
-    .cw-heart {
-      animation: cw-heart ease-out both;
-      animation-timeline: scroll(root block);
-      animation-range: 90% 100%;
-    }
-
-    @keyframes cw-heart {
-      0% {
-        opacity: 0;
-        scale: 0.2;
-        translate: 0 10px;
-      }
-      70% {
-        opacity: 1;
-        scale: 1.18;
-        translate: 0 -2px;
-      }
-      100% {
-        opacity: 1;
-        scale: 1;
-        translate: 0 0;
-      }
-    }
-
-    /* The small hearts are gated by scroll but float on their own clock, so
-       they keep rising once you have reached the bottom rather than freezing
-       the moment you stop scrolling. */
+    /* The hearts are gated by scroll but float on their own clock, so they
+       keep rising once you have reached the bottom rather than freezing the
+       moment you stop scrolling. */
     .cw-sparks {
       animation: cw-sparks-in linear both;
       animation-timeline: scroll(root block);
@@ -1005,19 +944,6 @@ body {
   }
 
   /* Time-based, so deliberately outside the scroll-driven @supports gate */
-  .cw-heart-spin {
-    animation: cw-heart-spin 9s linear infinite;
-  }
-
-  @keyframes cw-heart-spin {
-    from {
-      rotate: 0deg;
-    }
-    to {
-      rotate: 360deg;
-    }
-  }
-
   .cw-spark {
     animation: cw-spark-rise var(--spark-duration) ease-out var(--spark-delay)
       infinite;

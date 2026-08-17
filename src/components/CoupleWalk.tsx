@@ -74,25 +74,16 @@ const SPARK_TONES = [
 ];
 
 /**
- * The heart above their heads, plus the small ones rising around them.
+ * Small hearts rising around the couple once they meet.
  *
- * Layered so no two animations compete for one property — which is the whole
- * reason this is three nested elements rather than one:
- *   .cw-heart       scroll-driven pop-in (opacity, scale, translate)
- *   .cw-heart-spin  time-based rotation (rotate only)
- *
- * The box is centred on the pair using `margin`, not a transform, so the
- * animations above are free to own `translate` outright.
+ * Two layers, because they answer to different clocks: the container's opacity
+ * is scroll-driven so nothing shows until they are together, while each heart
+ * rises on a time-based loop so they keep going when you stop scrolling at the
+ * bottom of the page.
  */
 function Celebration() {
   return (
     <span className="cw-celebrate">
-      <span className="cw-heart">
-        <span className="cw-heart-spin">
-          <HeartShape fill="var(--color-rose-500)" />
-        </span>
-      </span>
-
       <span className="cw-sparks">
         {SPARKS.map((spark, index) => (
           <span
