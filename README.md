@@ -214,6 +214,41 @@ Cards tilt toward the cursor with a highlight that follows (`Tilt`,
 Gated on `hover: hover` and `pointer: fine`. On a touch screen `:hover` latches
 after a tap, which would strand a card mid-tilt.
 
+### Paced scrolling
+
+`ScrollPacer` holds a target position and walks the real scroll toward it at a
+fixed **1000 px/second**, so however hard someone spins the wheel the page
+advances at a readable rate and the invitation actually gets seen.
+
+**This is scroll-hijacking, and it is worth being clear-eyed about.** Many
+people dislike it, and the thing it slows down most is reaching the RSVP form.
+Three deliberate limits keep it from becoming a trap:
+
+- **Touch is untouched.** Damping touch means `touch-action: none` and
+  hand-rolled momentum: it breaks pull-to-refresh, fights the platform's
+  physics, and feels broken on a phone in a way tuning does not fix. Flicks on
+  mobile stay native.
+- **Keyboard, scrollbar dragging, find-in-page and nav links are untouched.**
+  Those are deliberate acts by someone who knows where they want to be —
+  clicking "RSVP" still goes straight there. The pacer resyncs whenever the page
+  moves by other means, so nothing snaps back.
+- **`prefers-reduced-motion` disables it.** The smoothing *is* the motion here.
+
+Also skipped: `ctrl`/`cmd`+wheel (that is pinch-zoom), and any wheel over an
+element that scrolls on its own.
+
+**The watchdog.** The wheel handler calls `preventDefault()` and hands all
+scrolling to an animation loop, so if that loop ever stalls the page would be
+permanently unscrollable by wheel with no way for a guest to recover. If a frame
+has not run in 250ms the pacer surrenders **permanently** and lets the browser
+scroll natively. Surrendering for just one event would mean every other wheel
+tick gets swallowed, and a page that scrolls at half rate feels more broken than
+one that simply scrolls.
+
+To change the pace, edit `MAX_SPEED` in `src/components/ScrollPacer.tsx`. To
+remove it entirely, delete `<ScrollPacer />` from `src/app/page.tsx` — nothing
+else depends on it.
+
 ### The groom walks to the bride
 
 The groom stands at the bottom-left, the bride at the bottom-right, and his

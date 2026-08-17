@@ -9,6 +9,7 @@ import { RsvpForm } from "@/components/RsvpForm";
 import { Footer } from "@/components/Footer";
 import { Petals } from "@/components/Petals";
 import { CoupleWalk } from "@/components/CoupleWalk";
+import { ScrollPacer } from "@/components/ScrollPacer";
 
 /*
   Order matters: tell them who and when, then where, then what to wear,
@@ -18,6 +19,8 @@ import { CoupleWalk } from "@/components/CoupleWalk";
 export default function Home() {
   return (
     <>
+      {/* Holds the wheel to a readable pace. Renders nothing. */}
+      <ScrollPacer />
       {/* Fixed decorative layers — over the page, under the nav */}
       <Petals />
       <CoupleWalk />
