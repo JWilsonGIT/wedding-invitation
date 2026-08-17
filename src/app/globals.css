@@ -587,10 +587,29 @@ body {
   opacity: 0;
 }
 
-/* Legs and arms pivot at the hip / shoulder: with `fill-box`, 50% 0% is
-   the top-centre of each limb's own bounding box. */
-.cw-leg,
-.cw-arm,
+/*
+  Joints pivot about exact points in the SVG's own coordinate system.
+
+  `view-box`, not `fill-box`. With `fill-box` the origin is a percentage of
+  each limb's bounding box, which drifts as soon as a limb contains a shoe or
+  a sleeve — the knee would rotate about a point that is not the knee. These
+  coordinates must stay in step with the joints marked in CoupleWalk.tsx.
+*/
+.cw-thigh {
+  transform-box: view-box;
+  transform-origin: 24px 56px; /* hip */
+}
+
+.cw-shin {
+  transform-box: view-box;
+  transform-origin: 24px 79px; /* knee */
+}
+
+.cw-arm {
+  transform-box: view-box;
+  transform-origin: 24px 33px; /* shoulder */
+}
+
 .cw-veil {
   transform-box: fill-box;
   transform-origin: 50% 0%;
@@ -617,50 +636,126 @@ body {
       }
     }
 
-    /* 14 alternating swings across the page — one stride per ~7% scrolled */
-    .cw-leg-front,
-    .cw-arm-back {
-      animation: cw-swing-a ease-in-out 14 alternate both;
+    /*
+      THE GAIT — 11 full strides across the page.
+
+      Not `alternate` any more. Alternate just plays a two-frame swing
+      backwards, which is a pendulum: both legs stay straight, nothing
+      pushes off, nothing lands. A real stride is asymmetric, so each
+      cycle is written out in full and `direction` is left at normal.
+
+      Sign convention, facing right: the leg hangs downward, so a
+      POSITIVE rotation swings the foot backward and a NEGATIVE one
+      swings it forward. The shin is always >= 0 — a knee folds
+      backward only, and letting it go negative is what makes cheap
+      walk cycles look broken-legged.
+
+      One stride, per leg:
+        0%   heel strike, leg forward and straight
+        20%  weight rolls on, leg nearing vertical
+        40%  passing vertical under the body
+        50%  toe-off, leg trailing behind
+        60%  knee folds sharply, foot lifts clear of the ground
+        75%  knee swings through, still folded
+        90%  shin straightens out to reach for the ground
+        100% back to heel strike
+    */
+    .cw-thigh-a {
+      animation: cw-thigh-a linear 11 both;
+      animation-timeline: scroll(root block);
+    }
+    .cw-shin-a {
+      animation: cw-shin-a linear 11 both;
+      animation-timeline: scroll(root block);
+    }
+    /* The far leg is the same cycle, shifted half a stride */
+    .cw-thigh-b {
+      animation: cw-thigh-b linear 11 both;
+      animation-timeline: scroll(root block);
+    }
+    .cw-shin-b {
+      animation: cw-shin-b linear 11 both;
       animation-timeline: scroll(root block);
     }
 
-    .cw-leg-back,
-    .cw-arm-front {
-      animation: cw-swing-b ease-in-out 14 alternate both;
+    @keyframes cw-thigh-a {
+      0%   { rotate: -20deg; }
+      20%  { rotate: -8deg; }
+      40%  { rotate: 6deg; }
+      50%  { rotate: 20deg; }
+      60%  { rotate: 10deg; }
+      75%  { rotate: -8deg; }
+      90%  { rotate: -20deg; }
+      100% { rotate: -20deg; }
+    }
+
+    @keyframes cw-shin-a {
+      0%   { rotate: 5deg; }
+      20%  { rotate: 0deg; }
+      40%  { rotate: 0deg; }
+      50%  { rotate: 8deg; }
+      60%  { rotate: 55deg; }
+      75%  { rotate: 45deg; }
+      90%  { rotate: 12deg; }
+      100% { rotate: 5deg; }
+    }
+
+    @keyframes cw-thigh-b {
+      0%   { rotate: 20deg; }
+      10%  { rotate: 10deg; }
+      25%  { rotate: -8deg; }
+      40%  { rotate: -20deg; }
+      50%  { rotate: -20deg; }
+      70%  { rotate: -8deg; }
+      90%  { rotate: 6deg; }
+      100% { rotate: 20deg; }
+    }
+
+    @keyframes cw-shin-b {
+      0%   { rotate: 8deg; }
+      10%  { rotate: 55deg; }
+      25%  { rotate: 45deg; }
+      40%  { rotate: 12deg; }
+      50%  { rotate: 5deg; }
+      70%  { rotate: 0deg; }
+      90%  { rotate: 0deg; }
+      100% { rotate: 8deg; }
+    }
+
+    /* Arms counter-swing: each opposes the leg on its own side */
+    .cw-arm-near {
+      animation: cw-arm-b linear 11 both;
+      animation-timeline: scroll(root block);
+    }
+    .cw-arm-far {
+      animation: cw-arm-a linear 11 both;
       animation-timeline: scroll(root block);
     }
 
-    @keyframes cw-swing-a {
-      from {
-        rotate: 21deg;
-      }
-      to {
-        rotate: -21deg;
-      }
+    @keyframes cw-arm-a {
+      0%   { rotate: 16deg; }
+      50%  { rotate: -16deg; }
+      100% { rotate: 16deg; }
     }
 
-    @keyframes cw-swing-b {
-      from {
-        rotate: -21deg;
-      }
-      to {
-        rotate: 21deg;
-      }
+    @keyframes cw-arm-b {
+      0%   { rotate: -16deg; }
+      50%  { rotate: 16deg; }
+      100% { rotate: -16deg; }
     }
 
-    /* Twice the stride rate — the body rises once per step, not per stride */
+    /* The body rises twice per stride — once over each supporting leg */
     .cw-bob {
-      animation: cw-bob ease-in-out 28 alternate both;
+      animation: cw-bob ease-in-out 11 both;
       animation-timeline: scroll(root block);
     }
 
     @keyframes cw-bob {
-      from {
-        translate: 0 0;
-      }
-      to {
-        translate: 0 -2.5px;
-      }
+      0%   { translate: 0 0; }
+      25%  { translate: 0 -2.5px; }
+      50%  { translate: 0 0; }
+      75%  { translate: 0 -2.5px; }
+      100% { translate: 0 0; }
     }
 
     .cw-veil {

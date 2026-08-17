@@ -220,10 +220,22 @@ The groom stands at the bottom-left, the bride at the bottom-right, and his
 position is bound to scroll progress — he arrives beside her exactly as the
 page runs out (`CoupleWalk`, `.couple-scene`).
 
-- **His stride is on the scroll timeline too**, at 14 iterations. With a scroll
-  timeline, iterations divide the scroll *range* rather than elapsed time, so
-  he steps only while you scroll and stands still when you stop. A time-based
-  loop would have him marching on the spot while you read.
+- **His stride is on the scroll timeline too**, at 11 strides across the page.
+  With a scroll timeline, iterations divide the scroll *range* rather than
+  elapsed time, so he steps only while you scroll and stands still when you
+  stop. A time-based loop would have him marching on the spot while you read.
+- **Both figures are in profile**, facing each other. A front-facing figure
+  translating sideways cannot read as walking — there is no forward direction
+  to attach the motion to, so it reads as moon-walking.
+- **Each leg is a thigh with a shin nested inside it**, pivoting at the knee.
+  The trailing leg folds as it lifts and straightens to land. A single rigid
+  segment swinging from the hip is a pendulum, not a stride.
+- The gait is written as a **full asymmetric cycle**, not a two-frame
+  `alternate` swing. During stance the thigh rotates from forward to backward
+  — the foot stays planted while the body passes over it. That one detail is
+  the difference between walking and sliding.
+- Knees only ever fold backward (`shin >= 0`). Letting that go negative is
+  what makes cheap walk cycles look broken-legged.
 - **Distance uses `cqw`, not `vw`.** `100vw` includes the scrollbar, so on a
   desktop with a classic scrollbar he would overshoot by ~15px and walk into
   the bride. The scene is a size container, so `100cqw` is the real usable
