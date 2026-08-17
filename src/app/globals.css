@@ -512,6 +512,193 @@ body {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   THE GROOM WALKS TO THE BRIDE
+
+   He starts bottom-left, she waits bottom-right, and his position is
+   bound to scroll progress so he arrives exactly as the page runs out.
+
+   His legs and arms run on the SAME scroll timeline at 14 iterations,
+   which is the detail that makes it work: with a scroll timeline the
+   iterations divide the scroll range rather than elapsed time, so he
+   steps only while you scroll and stands still when you stop. A
+   time-based loop would have him marching on the spot while you read.
+
+   Distance uses `cqw`, not `vw`. `100vw` includes the scrollbar, so on
+   a desktop with a classic scrollbar he would overshoot by ~15px and
+   walk straight into the bride. Making the scene a size container means
+   `100cqw` is the real usable width.
+
+   The scene is fixed, aria-hidden and pointer-events: none — it floats
+   over the bottom of the page and must never intercept a tap.
+   z-45 keeps the couple in front of the petals but behind the nav.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.couple-scene {
+  --figure-h: 104px;
+  --groom-w: 58px;
+  --bride-w: 72px;
+  --edge: 0.75rem;
+  --meet-gap: 0px;
+
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  height: var(--figure-h);
+  z-index: 45;
+  pointer-events: none;
+  container-type: inline-size;
+}
+
+@media (max-width: 640px) {
+  .couple-scene {
+    /* Smaller on a phone: the figures overlay the foot of the page, and
+       at desktop size they would crowd the content underneath. */
+    --figure-h: 66px;
+    --groom-w: 37px;
+    --bride-w: 46px;
+    --edge: 0.4rem;
+  }
+}
+
+.couple-figure {
+  position: absolute;
+  bottom: 0;
+  height: var(--figure-h);
+  overflow: visible;
+}
+
+.couple-groom {
+  left: var(--edge);
+  width: var(--groom-w);
+}
+
+.couple-bride {
+  right: var(--edge);
+  width: var(--bride-w);
+}
+
+.cw-heart {
+  position: absolute;
+  bottom: calc(var(--figure-h) * 0.78);
+  right: calc(var(--edge) + var(--bride-w) - 0.5rem);
+  width: 1.25rem;
+  height: 1.25rem;
+  opacity: 0;
+}
+
+/* Legs and arms pivot at the hip / shoulder: with `fill-box`, 50% 0% is
+   the top-centre of each limb's own bounding box. */
+.cw-leg,
+.cw-arm,
+.cw-veil {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll(root block)) {
+    .couple-groom {
+      animation: couple-walk linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0% 100%;
+    }
+
+    @keyframes couple-walk {
+      from {
+        translate: 0 0;
+      }
+      to {
+        translate: calc(
+            100cqw - (var(--edge) * 2) - var(--bride-w) - var(--groom-w) -
+              var(--meet-gap)
+          )
+          0;
+      }
+    }
+
+    /* 14 alternating swings across the page — one stride per ~7% scrolled */
+    .cw-leg-front,
+    .cw-arm-back {
+      animation: cw-swing-a ease-in-out 14 alternate both;
+      animation-timeline: scroll(root block);
+    }
+
+    .cw-leg-back,
+    .cw-arm-front {
+      animation: cw-swing-b ease-in-out 14 alternate both;
+      animation-timeline: scroll(root block);
+    }
+
+    @keyframes cw-swing-a {
+      from {
+        rotate: 21deg;
+      }
+      to {
+        rotate: -21deg;
+      }
+    }
+
+    @keyframes cw-swing-b {
+      from {
+        rotate: -21deg;
+      }
+      to {
+        rotate: 21deg;
+      }
+    }
+
+    /* Twice the stride rate — the body rises once per step, not per stride */
+    .cw-bob {
+      animation: cw-bob ease-in-out 28 alternate both;
+      animation-timeline: scroll(root block);
+    }
+
+    @keyframes cw-bob {
+      from {
+        translate: 0 0;
+      }
+      to {
+        translate: 0 -2.5px;
+      }
+    }
+
+    .cw-veil {
+      animation: cw-veil ease-in-out 9 alternate both;
+      animation-timeline: scroll(root block);
+    }
+
+    @keyframes cw-veil {
+      from {
+        rotate: -2.5deg;
+      }
+      to {
+        rotate: 3.5deg;
+      }
+    }
+
+    /* Blooms only once they are together */
+    .cw-heart {
+      animation: cw-heart ease-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 90% 100%;
+    }
+
+    @keyframes cw-heart {
+      from {
+        opacity: 0;
+        scale: 0.3;
+        translate: 0 6px;
+      }
+      to {
+        opacity: 1;
+        scale: 1;
+        translate: 0 0;
+      }
+    }
+  }
+}
+
 /* A hairline of colour across the top edge of a card */
 .card-accent::before {
   content: "";

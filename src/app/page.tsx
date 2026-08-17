@@ -8,6 +8,7 @@ import { Gifts } from "@/components/Gifts";
 import { RsvpForm } from "@/components/RsvpForm";
 import { Footer } from "@/components/Footer";
 import { Petals } from "@/components/Petals";
+import { CoupleWalk } from "@/components/CoupleWalk";
 
 /*
   Order matters: tell them who and when, then where, then what to wear,
@@ -17,8 +18,9 @@ import { Petals } from "@/components/Petals";
 export default function Home() {
   return (
     <>
-      {/* Fixed decorative layer — drifts over the whole page, under the nav */}
+      {/* Fixed decorative layers — over the page, under the nav */}
       <Petals />
+      <CoupleWalk />
       <Nav />
       <main className="flex-1">
         <Hero />

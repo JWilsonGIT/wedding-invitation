@@ -214,6 +214,30 @@ Cards tilt toward the cursor with a highlight that follows (`Tilt`,
 Gated on `hover: hover` and `pointer: fine`. On a touch screen `:hover` latches
 after a tap, which would strand a card mid-tilt.
 
+### The groom walks to the bride
+
+The groom stands at the bottom-left, the bride at the bottom-right, and his
+position is bound to scroll progress — he arrives beside her exactly as the
+page runs out (`CoupleWalk`, `.couple-scene`).
+
+- **His stride is on the scroll timeline too**, at 14 iterations. With a scroll
+  timeline, iterations divide the scroll *range* rather than elapsed time, so
+  he steps only while you scroll and stands still when you stop. A time-based
+  loop would have him marching on the spot while you read.
+- **Distance uses `cqw`, not `vw`.** `100vw` includes the scrollbar, so on a
+  desktop with a classic scrollbar he would overshoot by ~15px and walk into
+  the bride. The scene is a size container, so `100cqw` is the real usable
+  width. Measured landing gap: 0px at both 1280px and 375px.
+- Figures are silhouettes — elegant at 100px tall, and no need to guess at
+  features. Groom in gray (the gentlemen's colour), bride in ivory with a rose
+  outline, because white on white would disappear.
+- A heart blooms between them over the last 10% of the page.
+
+Sizes are tokens on `.couple-scene` (`--groom-w`, `--bride-w`, `--figure-h`)
+and shrink on mobile, where the pair occupies about 22% of the screen width.
+The scene is `pointer-events: none` and aria-hidden — verified that no
+interactive control is blocked by it.
+
 ### Petals on the wind
 
 A fixed layer of 34 drifting blossom petals (`Petals`, `.petal-field`). No
