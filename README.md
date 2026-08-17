@@ -1,36 +1,187 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wedding Invitation
 
-## Getting Started
+A one-page wedding invitation. Ceremony at the church, then a meal together at
+Max's — no program. RSVPs land in a Google Sheet.
 
-First, run the development server:
+White with soft pink accents. Next.js 16, Tailwind v4, TypeScript.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000. The RSVP form works immediately — see
+[Before you connect Google](#before-you-connect-google).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 1. Fill in your details
 
-## Learn More
+Everything guests read lives in one file:
 
-To learn more about Next.js, take a look at the following resources:
+**`src/config/wedding.ts`**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open it and replace every value in `[SQUARE BRACKETS]`. Search the file for `[`
+to find what's left. Placeholders render visibly on the page on purpose, so a
+half-finished invitation can never be mistaken for a finished one.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You'll need:
 
-## Deploy on Vercel
+- Both first names, and a short "Ana & John" form for the tab title
+- The date, as `YYYY-MM-DD`
+- Church: name, time, address
+- Max's: branch name, time, address
+- GCash / Maya account names and numbers (or delete that section — see below)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Getting the maps right
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Each event has a `mapsQuery` — free text Google searches for. Include the city
+or you may land on the wrong Max's branch.
+
+For real accuracy, add `mapsUrl` as well:
+
+1. Find the place on Google Maps
+2. Share ▸ Copy link
+3. Paste it as `mapsUrl` on that event
+
+The map iframe uses Google's keyless embed, so there's **no API key, no Google
+Cloud project and no billing account** to set up. Every guest also gets a Waze
+link, which is what most people in the Philippines actually drive with.
+
+### Photos
+
+Drop your own into `public/images/`:
+
+| Replace | With |
+|---|---|
+| `public/images/hero-placeholder.jpg` | Your hero photo (landscape, ~1800px wide) |
+| `public/images/gallery/placeholder-1…6.jpg` | Six gallery photos |
+
+Then update `gallery.images` in the config — including each image's real
+`width` and `height`, which stop the page jumping as photos load. Write a real
+`alt` for each one; it's what guests on slow connections and screen readers get.
+
+For the gift QR codes, save your screenshots to `public/images/qr/` and set
+`gifts.methods[].qr` to e.g. `"/images/qr/gcash.png"`. **A QR left as
+`undefined` simply doesn't render** — no empty box.
+
+---
+
+## 2. Connect the Google Sheet
+
+RSVPs are appended to a spreadsheet by a small Apps Script.
+
+Full click-by-click steps are in the comments at the top of
+**`scripts/apps-script.gs`**. In short:
+
+1. New sheet at https://sheets.new
+2. Extensions ▸ Apps Script, paste in `scripts/apps-script.gs`
+3. Replace `CHANGE_ME` with a long random string
+4. Deploy ▸ New deployment ▸ **Web app**, Execute as **Me**, access **Anyone**
+5. Copy the `/exec` URL
+
+Then create `.env.local` (copy `.env.example`):
+
+```bash
+RSVP_WEBHOOK_URL=https://script.google.com/macros/s/AKfy…/exec
+RSVP_SHARED_SECRET=the-same-random-string-you-pasted-into-the-script
+```
+
+Generate the secret with:
+
+```bash
+node -e "console.log(crypto.randomUUID())"
+```
+
+> **If you edit the Apps Script later**, you must redeploy for the change to
+> take effect: Deploy ▸ Manage deployments ▸ pencil ▸ Version: New version.
+> Saving alone leaves the old version live. This catches nearly everyone once.
+
+### Why the form posts to our own server first
+
+Apps Script doesn't return usable CORS headers, so a browser can't POST to it
+and read the reply — a guest would never learn whether their RSVP landed. So
+the form posts to `/api/rsvp`, which forwards it server-side. Two bonuses: the
+Apps Script URL never reaches guests' browsers, and validation can't be skipped
+by editing the page.
+
+### Before you connect Google
+
+With `RSVP_WEBHOOK_URL` unset, submissions append to `.data/rsvps.jsonl` so you
+can test the whole flow first. That file is gitignored — it holds real names and
+phone numbers.
+
+In **production** with the variable unset, the form returns an honest error
+instead of pretending to succeed. Vercel's filesystem is read-only, so there's
+no quiet local fallback to hide a lost RSVP in.
+
+---
+
+## 3. Deploy
+
+```bash
+npx vercel
+```
+
+Add both environment variables in the Vercel dashboard (Settings ▸ Environment
+Variables), for **Production** and **Preview**. Redeploy after adding them —
+env vars are read at build and request time, not injected retroactively.
+
+The site URL for link previews resolves automatically from Vercel's own domain.
+Only set `site.url` in the config if you buy a custom domain.
+
+---
+
+## Counting your guests
+
+In the sheet, the **Attending** column reads `Attending` / `Not attending` and
+**Guests** holds the headcount for that reply (a decline always stores `0`, so
+you can sum the column safely).
+
+For a running total, open the Apps Script editor, pick `countAttending` from the
+function dropdown, press Run, and read the Execution log.
+
+---
+
+## Editing the design
+
+Colours and fonts are defined once, at the top of `src/app/globals.css`.
+
+**One rule worth keeping.** Pink on white is a contrast trap — the prettiest
+pinks are illegible as body text. So each pink has exactly one job:
+
+| Token | Contrast on white | Use for |
+|---|---|---|
+| `rose-400` | 1.9:1 | Decoration only — rules, icons |
+| `rose-500` | 3.4:1 | Large display text only (≥24px) |
+| `rose-600` | 5.1:1 | **All** body text, links, buttons |
+| `rose-700` | 6.9:1 | Hover states, error text |
+
+Putting small text in `rose-400` or `rose-500` is the one change that will make
+this page look cheap and read badly. The ink tones are all ≥5:1 as well.
+
+`rose-400/500/600/700` intentionally override Tailwind's built-in rose scale.
+Don't reach for other shades (`rose-300`, `rose-800`) — those are Tailwind's
+defaults and won't match.
+
+### Structure
+
+| File | What it does |
+|---|---|
+| `src/config/wedding.ts` | All content |
+| `src/app/page.tsx` | Section order |
+| `src/components/EventCard.tsx` | One card, renders every event |
+| `src/components/MapEmbed.tsx` | Map iframe + Maps/Waze links |
+| `src/lib/rsvp-schema.ts` | Validation, shared by form and server |
+| `src/app/api/rsvp/route.ts` | Receives and forwards RSVPs |
+
+Adding a third stop to the day needs no new code — just another entry in
+`wedding.events`.
+
+---
+
+## Deliberately left out
+
+Countdown timer, meal preference, song request, seating charts, QR entry passes
+and an admin panel. Max's serves a set menu, so meal choice is yours rather than
+your guests'; and with no program there's nothing for a song request to feed
+into. All of it is easy to add later — the config-driven structure leaves room.

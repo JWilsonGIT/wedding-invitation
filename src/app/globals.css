@@ -33,10 +33,13 @@
   --color-rose-600: #a8536f;
   --color-rose-700: #8d4159; /* hover / pressed on rose-600 fills */
 
-  /* Ink */
-  --color-ink-900: #2f2629; /* headings */
-  --color-ink-600: #6b5a60; /* body */
-  --color-ink-400: #9c8b91; /* meta, labels */
+  /* Ink — every tone here clears 4.5:1 on white AND on blush-100,
+     so muted text stays legible wherever a section wash puts it.
+     An earlier, prettier #9C8B91 measured 3.22:1 and had to go:
+     hints and labels are exactly the text people squint at. */
+  --color-ink-900: #2f2629; /* headings          — 13.9:1 */
+  --color-ink-600: #6b5a60; /* body              —  6.1:1 */
+  --color-ink-400: #7b6870; /* meta, hints, labels — 5.2:1 */
 
   /* Type */
   --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
