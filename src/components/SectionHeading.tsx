@@ -13,8 +13,11 @@ export function SectionHeading({ eyebrow, children, intro }: Props) {
   return (
     <header className="flex flex-col items-center text-center">
       {eyebrow ? (
-        // rose-600 — the only pink cleared for small text (5.1:1 on white)
-        <p className="mb-4 text-[0.7rem] font-medium tracking-[0.28em] text-rose-600 uppercase">
+        /* rose-700, not rose-600. At 11.2px with wide tracking this is the
+           smallest text on the page, and it can sit over a drifting blush
+           layer — rose-600 measured 4.0:1 there, under the 4.5 minimum.
+           rose-700 holds 5.5:1 even in that worst case. */
+        <p className="mb-4 text-[0.7rem] font-medium tracking-[0.28em] text-rose-700 uppercase">
           {eyebrow}
         </p>
       ) : null}

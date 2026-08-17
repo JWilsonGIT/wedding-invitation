@@ -178,6 +178,45 @@ across the full 50–900 ramp so any shade you reach for stays warm; `rose` is
 only defined at 400–700, so don't reach for `rose-300` or `rose-800` — those
 are Tailwind's cool defaults and won't match.
 
+### Motion — 3D scroll and parallax
+
+All of it is **native CSS scroll-driven animation** (`animation-timeline`), not
+a scroll listener. There is no JavaScript involved: the animations run on the
+compositor, so they cannot jank, and progress is tied to scroll *position*, so
+they track a finger on a phone and reverse when you scroll back up.
+
+| Class | Effect | Timeline |
+|---|---|---|
+| `.parallax-hero` | Hero photo drifts slower than the page | page scroll |
+| `.hero-depth` | Hero words recede into depth and fade | page scroll |
+| `.reveal-3d` | Sections rise out of depth, tilting flat | element in view |
+| `.tilt-3d` | Gallery photos tilt up out of the page | element in view |
+| `.drift` | Blurred colour layers drift at two speeds | element in view |
+
+Three rules that keep this working — each one cost a bug to learn:
+
+1. **Perspective is baked into the `transform`**, never set as a `perspective`
+   property on an ancestor. An element with `perspective` becomes the
+   containing block for `position: fixed` descendants, which tears the fixed
+   nav off the top of the page.
+2. **Sections use `overflow-x: clip`, not `overflow-hidden`.** `hidden` creates
+   a scroll container, and `animation-timeline: view()` resolves against the
+   nearest scrollport — so an `overflow-hidden` section silently freezes every
+   scroll animation inside it.
+3. **Translucent drifting layers eat contrast.** The rose layer at 30% alpha
+   dragged an 11px heading to 4.0:1. Alphas are capped low and the small
+   letterspaced eyebrows use `rose-700`. If you raise a `Drift` alpha, re-check
+   contrast.
+
+To tune the depth, edit the keyframes in `globals.css`. The geometry is
+deliberately shallow — about 7° of rotation and 110px of depth. It should read
+as air and light, not as a carousel.
+
+Guests who have asked their system for reduced motion, and browsers without
+scroll-driven animation support, get the finished page with no motion at all —
+the whole block is gated behind `prefers-reduced-motion: no-preference` and
+`@supports`.
+
 ### Structure
 
 | File | What it does |

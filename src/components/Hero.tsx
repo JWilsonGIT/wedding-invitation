@@ -15,22 +15,30 @@ export function Hero() {
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-20 sm:px-8 sm:py-28"
     >
       {/* The photo reads as a soft watermark, not a landing-page hero —
-          it's an invitation, so the words come first. */}
-      <Image
-        src={wedding.heroImage.src}
-        alt={wedding.heroImage.alt}
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
+          it's an invitation, so the words come first.
+
+          Wrapped so the parallax animates this layer alone: next/image
+          with `fill` sets its own positioning, and animating it directly
+          would fight that. */}
+      <div className="parallax-hero absolute inset-0">
+        <Image
+          src={wedding.heroImage.src}
+          alt={wedding.heroImage.alt}
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
       <div aria-hidden="true" className="absolute inset-0 bg-white/80" />
       <div
         aria-hidden="true"
         className="absolute inset-0 bg-gradient-to-b from-white via-white/55 to-white"
       />
 
-      <div className="relative w-full max-w-3xl">
+      {/* hero-depth: the words recede and fade as the guest scrolls past,
+          so the hero gives way to the page rather than sliding off it. */}
+      <div className="hero-depth relative w-full max-w-3xl">
         <div className="border border-rose-400/45 px-6 py-10 text-center sm:px-14 sm:py-20">
           <p className="text-[0.7rem] font-medium tracking-[0.3em] text-rose-600 uppercase">
             {wedding.invitation.heading}

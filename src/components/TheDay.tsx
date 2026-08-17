@@ -21,7 +21,7 @@ export function TheDay() {
           nothing but another item in wedding.events. */}
       <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-7">
         {wedding.events.map((event, index) => (
-          <Reveal key={event.id} delay={index * 120} className="flex">
+          <Reveal key={event.id} stagger={index} className="flex">
             <div className="flex w-full">
               <EventCard event={event} index={index} />
             </div>

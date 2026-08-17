@@ -16,9 +16,9 @@ export function DressCode() {
           see their own palette, not have to work out which half is theirs. */}
       <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6">
         {parties.map((party, index) => (
-          <Reveal key={party.who} delay={index * 120}>
+          <Reveal key={party.who} stagger={index}>
             <div className="flex h-full flex-col items-center rounded-xl border border-blush-200 bg-white px-6 py-8 text-center">
-              <h3 className="text-[0.7rem] font-medium tracking-[0.24em] text-rose-600 uppercase">
+              <h3 className="text-[0.7rem] font-medium tracking-[0.24em] text-rose-700 uppercase">
                 {party.who}
               </h3>
 

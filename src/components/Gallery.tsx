@@ -56,7 +56,9 @@ export function Gallery() {
 
       <ul className="mt-14 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
         {images.map((image, index) => (
-          <li key={image.src}>
+          /* Each photo tilts up out of the page on its own scroll range,
+             so the grid assembles itself rather than appearing at once. */
+          <li key={image.src} className="tilt-3d">
             <button
               type="button"
               onClick={(event) => {

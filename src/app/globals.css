@@ -130,18 +130,131 @@ body {
   }
 }
 
-/* ── Reveal-on-scroll, progressively enhanced ─────────────────
-   Starts visible. The Reveal component adds [data-reveal] only
-   once JS is running, so no-JS guests still see everything. */
-[data-reveal="hidden"] {
-  opacity: 0;
-  transform: translateY(12px);
-}
+/* ═══════════════════════════════════════════════════════════════════
+   SCROLL-DRIVEN 3D MOTION AND PARALLAX
 
-[data-reveal="shown"] {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity 0.7s var(--ease-gentle),
-    transform 0.7s var(--ease-gentle);
+   Built on native CSS scroll-driven animations (`animation-timeline`),
+   not a scroll listener. Three consequences worth knowing:
+
+     • The animation runs on the compositor, off the main thread, so it
+       cannot jank however much else is happening.
+     • There is no JavaScript at all — nothing to ship, nothing to
+       hydrate, no cascading renders.
+     • Progress is tied to scroll POSITION, not elapsed time, so it
+       tracks a finger on a phone exactly and reverses when you scroll
+       back up.
+
+   Everything sits inside `prefers-reduced-motion: no-preference` and a
+   `@supports` gate. A browser without support, or a guest who has asked
+   for less motion, gets the finished page with no animation — which is
+   the correct invitation, not a broken one.
+
+   PERSPECTIVE IS BAKED INTO EACH TRANSFORM, deliberately — never set as
+   a `perspective` property on an ancestor. An element with `perspective`
+   becomes the containing block for fixed-position descendants, which
+   would tear the fixed nav off the top of the page. Writing
+   `transform: perspective(1100px) rotateX(...)` keeps the depth local
+   and the nav intact.
+
+   The geometry is kept shallow on purpose: ~7° of rotation and ~110px
+   of depth. This is an invitation, not a product launch — the motion
+   should register as air and light, not as a carousel.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* ── Sections rising out of depth as they enter ──────────────── */
+    .reveal-3d {
+      transform-origin: 50% 100%;
+      animation: reveal-3d linear both;
+      animation-timeline: view();
+      /* Staggered by overriding these two per item, so cards sharing a
+         row still arrive one after another instead of in lockstep. */
+      animation-range: entry var(--reveal-from, 4%) entry var(--reveal-to, 80%);
+    }
+
+    @keyframes reveal-3d {
+      from {
+        opacity: 0;
+        transform: perspective(1100px) translate3d(0, 34px, -110px) rotateX(7deg);
+      }
+      to {
+        opacity: 1;
+        transform: perspective(1100px) translate3d(0, 0, 0) rotateX(0deg);
+      }
+    }
+
+    /* ── Hero photo: parallax against the page ───────────────────── */
+    .parallax-hero {
+      animation: parallax-hero linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 100vh;
+      will-change: transform;
+    }
+
+    @keyframes parallax-hero {
+      from {
+        transform: translate3d(0, 0, 0) scale(1.08);
+      }
+      to {
+        /* Drifts down more slowly than the page scrolls up, which is what
+           reads as depth. Scale grows so no edge is ever exposed. */
+        transform: translate3d(0, 14vh, 0) scale(1.18);
+      }
+    }
+
+    /* ── Hero words receding into depth as you leave them ────────── */
+    .hero-depth {
+      animation: hero-depth linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 90vh;
+    }
+
+    @keyframes hero-depth {
+      from {
+        opacity: 1;
+        transform: perspective(1000px) translate3d(0, 0, 0);
+      }
+      to {
+        opacity: 0;
+        transform: perspective(1000px) translate3d(0, -3vh, -240px);
+      }
+    }
+
+    /* ── Gallery photos tilting up out of the page ───────────────── */
+    .tilt-3d {
+      animation: tilt-3d linear both;
+      animation-timeline: view();
+      animation-range: entry 6% cover 42%;
+    }
+
+    @keyframes tilt-3d {
+      from {
+        opacity: 0.3;
+        transform: perspective(900px) translate3d(0, 26px, -80px) rotateX(9deg);
+      }
+      to {
+        opacity: 1;
+        transform: perspective(900px) translate3d(0, 0, 0) rotateX(0deg);
+      }
+    }
+
+    /* ── Decorative layers drifting at different rates ───────────────
+       Two speeds is what creates the parallax; one speed is just a
+       moving object. Purely decorative, always aria-hidden. */
+    .drift {
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+
+    @keyframes drift {
+      from {
+        transform: translate3d(0, calc(var(--drift) * 1px), 0);
+      }
+      to {
+        transform: translate3d(0, calc(var(--drift) * -1px), 0);
+      }
+    }
+  }
 }

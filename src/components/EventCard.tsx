@@ -17,7 +17,7 @@ export function EventCard({ event, index }: { event: WeddingEvent; index: number
         >
           {index + 1}
         </span>
-        <p className="text-[0.7rem] font-medium tracking-[0.24em] text-rose-600 uppercase">
+        <p className="text-[0.7rem] font-medium tracking-[0.24em] text-rose-700 uppercase">
           {event.label}
         </p>
       </div>

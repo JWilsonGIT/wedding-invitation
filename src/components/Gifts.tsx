@@ -3,12 +3,22 @@ import { wedding } from "@/config/wedding";
 import { Section } from "./Section";
 import { SectionHeading } from "./SectionHeading";
 import { Reveal } from "./Reveal";
+import { Drift } from "./Drift";
 
 export function Gifts() {
   const { heading, message, methods } = wedding.gifts;
 
   return (
-    <Section id="gifts" tone="blush">
+    <Section
+      id="gifts"
+      tone="blush"
+      decoration={
+        <>
+          <Drift className="top-8 -right-[10%] size-72" speed={48} tone="rose" />
+          <Drift className="-bottom-16 -left-[12%] size-80" speed={18} tone="gray" />
+        </>
+      }
+    >
       <SectionHeading eyebrow="With Thanks">{heading}</SectionHeading>
 
       <Reveal className="mx-auto mt-8 max-w-2xl">
