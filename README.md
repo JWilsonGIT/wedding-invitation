@@ -178,6 +178,42 @@ across the full 50–900 ramp so any shade you reach for stays warm; `rose` is
 only defined at 400–700, so don't reach for `rose-300` or `rose-800` — those
 are Tailwind's cool defaults and won't match.
 
+### Section design
+
+Each section is meant to feel like an arrival rather than the next band down.
+Five details do that work, and they are deliberately quiet individually:
+
+| Piece | Where |
+|---|---|
+| Ghosted Roman numeral behind the heading | `.section-numeral`, via `SectionHeading index={n}` |
+| Hairlines flanking the eyebrow label | `SectionHeading` |
+| A rule that fades out before the page edges | `.section-rule`, via `Section divider` |
+| A lit gradient instead of a flat fill | `.tone-white` / `.tone-blush` |
+| A colour hairline across a card's top edge | `.card-accent` |
+
+The **arched photo frame** (`.arch`) is the one strongly bridal shape — a
+chapel window, and the crop wedding photographers already shoot for. It is an
+ellipse rather than a half-circle so tall portraits stay natural.
+
+To renumber sections, change the `index` prop. To drop a numeral, omit it.
+
+### Hover — 3D tilt
+
+Cards tilt toward the cursor with a highlight that follows (`Tilt`,
+`.tilt` / `.tilt-sheen`). Two things worth knowing:
+
+- **The pointer handler never touches React state.** It writes CSS custom
+  properties straight onto the node, coalesced to one write per frame with the
+  latest position. A mouse move fires 100+ times a second; re-rendering the
+  subtree that often for something the compositor can do alone would be waste.
+- **Event cards use `.lift`, not `.tilt`** — a straight rise, no rotation.
+  They hold a live Google Maps iframe, and rotating an iframe's ancestor makes
+  browsers re-rasterise it, so it goes soft. It is also just annoying to have a
+  map tip away while you are reading a street name off it.
+
+Gated on `hover: hover` and `pointer: fine`. On a touch screen `:hover` latches
+after a tap, which would strand a card mid-tilt.
+
 ### Motion — 3D scroll and parallax
 
 All of it is **native CSS scroll-driven animation** (`animation-timeline`), not

@@ -101,7 +101,9 @@ export function RsvpForm() {
 
   return (
     <Section id="rsvp" tone="blush">
-      <SectionHeading eyebrow="RSVP">{wedding.rsvp.heading}</SectionHeading>
+      <SectionHeading eyebrow="RSVP" index={5}>
+        {wedding.rsvp.heading}
+      </SectionHeading>
 
       <p className="mx-auto mt-6 max-w-xl text-center text-base text-ink-600">
         Kindly reply by{" "}
@@ -117,7 +119,7 @@ export function RsvpForm() {
         /* noValidate on purpose: the server schema is the single source of
            truth, so guests read our wording rather than the browser's. */
         noValidate
-        className="mx-auto mt-12 max-w-xl rounded-xl border border-blush-200 bg-white p-6 sm:p-9"
+        className="card-accent relative mx-auto mt-12 max-w-xl overflow-hidden rounded-xl border border-blush-200 bg-white p-6 shadow-[0_1px_3px_rgba(47,38,41,0.05)] sm:p-9"
       >
         {formError ? (
           <p

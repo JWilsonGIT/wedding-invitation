@@ -8,7 +8,14 @@ import { MapEmbed } from "./MapEmbed";
  */
 export function EventCard({ event, index }: { event: WeddingEvent; index: number }) {
   return (
-    <article className="flex flex-col rounded-xl border border-blush-200 bg-white p-6 sm:p-8">
+    /*
+      `lift`, not `tilt`. This card holds a live Google Maps iframe, and
+      rotating an ancestor of an iframe makes browsers re-rasterise it —
+      it goes soft, and it is irritating to have the map tip away while
+      you are trying to read the street name. A straight lift gives the
+      card presence on hover without touching the map's rendering.
+    */
+    <article className="lift card-accent relative flex flex-col overflow-hidden rounded-xl border border-blush-200 bg-white p-6 shadow-[0_1px_3px_rgba(47,38,41,0.05)] hover:border-rose-400 sm:p-8">
       <div className="flex items-center gap-3">
         {/* Ordinal, not a program: it says "this happens, then this". */}
         <span

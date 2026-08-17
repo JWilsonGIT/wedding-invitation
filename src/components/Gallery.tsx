@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { wedding } from "@/config/wedding";
 import { Section } from "./Section";
 import { SectionHeading } from "./SectionHeading";
+import { Tilt } from "./Tilt";
 
 const images = wedding.gallery.images;
 
@@ -52,32 +53,39 @@ export function Gallery() {
 
   return (
     <Section id="gallery">
-      <SectionHeading eyebrow="Gallery">{wedding.gallery.heading}</SectionHeading>
+      <SectionHeading eyebrow="Gallery" index={3}>
+        {wedding.gallery.heading}
+      </SectionHeading>
 
       <ul className="mt-14 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
         {images.map((image, index) => (
           /* Each photo tilts up out of the page on its own scroll range,
              so the grid assembles itself rather than appearing at once. */
           <li key={image.src} className="tilt-3d">
-            <button
-              type="button"
-              onClick={(event) => {
-                triggerRef.current = event.currentTarget;
-                setOpenIndex(index);
-              }}
-              className="group block w-full overflow-hidden rounded-lg border border-blush-200 bg-blush-50"
-              aria-label={`View larger: ${image.alt}`}
-            >
-              <span className="relative block aspect-[4/5]">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  sizes="(min-width: 768px) 33vw, 50vw"
-                  className="object-cover transition-transform duration-500 ease-gentle group-hover:scale-[1.04]"
-                />
-              </span>
-            </button>
+            <Tilt className="arch" max={7} lift={5}>
+              <button
+                type="button"
+                onClick={(event) => {
+                  triggerRef.current = event.currentTarget;
+                  setOpenIndex(index);
+                }}
+                /* The arch is the one unmistakably bridal shape on the page —
+                   a chapel window, and the frame every wedding photographer
+                   already shoots for. */
+                className="arch group block w-full overflow-hidden border border-blush-200 bg-blush-50"
+                aria-label={`View larger: ${image.alt}`}
+              >
+                <span className="relative block aspect-[4/5]">
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    sizes="(min-width: 768px) 33vw, 50vw"
+                    className="object-cover transition-transform duration-500 ease-gentle group-hover:scale-[1.04]"
+                  />
+                </span>
+              </button>
+            </Tilt>
           </li>
         ))}
       </ul>

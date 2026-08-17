@@ -8,7 +8,7 @@ import { Reveal } from "./Reveal";
 export function TheDay() {
   return (
     <Section id="the-day">
-      <SectionHeading eyebrow={formatFullDate(wedding.date)}>
+      <SectionHeading eyebrow={formatFullDate(wedding.date)} index={1}>
         The Day
       </SectionHeading>
 

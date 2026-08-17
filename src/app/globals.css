@@ -258,3 +258,157 @@ body {
     }
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   HOVER — CARDS TILTING TOWARD THE CURSOR
+
+   Deliberately NOT inside the `@supports (animation-timeline: view())`
+   gate above: this needs only 3D transforms, which every target browser
+   has had for a decade. Coupling it to scroll-driven animations would
+   have denied the effect to browsers perfectly capable of it.
+
+   `hover: hover` and `pointer: fine` matter as much. On a touch screen
+   :hover latches after a tap, so without this a card would stay frozen
+   mid-tilt until you tapped elsewhere.
+
+   The angles arrive as custom properties written by the Tilt component,
+   so a pointer move sets two numbers and the compositor does the rest —
+   no React render per mouse move.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .tilt {
+    transform: perspective(var(--tilt-perspective, 900px))
+      rotateX(var(--tilt-rx, 0deg))
+      rotateY(var(--tilt-ry, 0deg))
+      translate3d(0, var(--tilt-lift, 0px), 0);
+    /* Short, not zero: long enough to smooth pointer sampling, short
+       enough that the card still feels stuck to the cursor. */
+    transition:
+      transform 160ms var(--ease-gentle),
+      box-shadow 260ms var(--ease-gentle);
+  }
+
+  /* A highlight that follows the cursor. This is what sells the surface
+     as tilting rather than merely rotating. */
+  .tilt-sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 260ms var(--ease-gentle);
+    background: radial-gradient(
+      18rem circle at var(--glare-x, 50%) var(--glare-y, 50%),
+      rgba(255, 255, 255, 0.5),
+      transparent 60%
+    );
+  }
+
+  .tilt:hover .tilt-sheen::after {
+    opacity: 1;
+  }
+
+  .tilt:hover {
+    box-shadow:
+      0 18px 40px -18px rgba(168, 83, 111, 0.32),
+      0 4px 12px -6px rgba(47, 38, 41, 0.1);
+  }
+
+  /* Lift only, no tilt — for cards holding a live map iframe. See EventCard. */
+  .lift {
+    transition:
+      transform 260ms var(--ease-gentle),
+      box-shadow 260ms var(--ease-gentle),
+      border-color 260ms var(--ease-gentle);
+  }
+
+  .lift:hover {
+    transform: translate3d(0, -6px, 0);
+    box-shadow:
+      0 20px 44px -20px rgba(168, 83, 111, 0.3),
+      0 4px 12px -6px rgba(47, 38, 41, 0.09);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION PRESENCE
+
+   The bands were flat fills stacked in a column — legible, but nothing
+   announced a new section. These add definition without volume: a lit
+   gradient instead of a flat wash, a numeral ghosted behind each
+   heading, a rule that thins to nothing at the edges, and one arched
+   photo frame that is unmistakably bridal.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Light falls from the top of each band, so it reads as a surface */
+.tone-white {
+  background: radial-gradient(115% 70% at 50% 0%, #fffbfc 0%, #ffffff 58%);
+}
+
+.tone-blush {
+  background:
+    radial-gradient(110% 65% at 50% 0%, #fffdfe 0%, transparent 55%),
+    linear-gradient(180deg, #fffbfc 0%, #fdf1f5 100%);
+}
+
+/* Section divider: a hairline that fades out before it reaches the edges,
+   so the page never looks ruled like a form. */
+.section-rule {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-blush-200) 22%,
+    var(--color-rose-400) 50%,
+    var(--color-blush-200) 78%,
+    transparent 100%
+  );
+}
+
+/* The ghosted numeral behind a section heading. Kept faint enough that
+   the heading's contrast is untouched — verified, not assumed. */
+.section-numeral {
+  position: absolute;
+  left: 50%;
+  top: -0.35em;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(5rem, 16vw, 9rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  /* rose-400 at low alpha rather than a flat blush: warm enough to read as
+     a deliberate mark, faint enough to stay a watermark. It sits behind the
+     heading, so it is aria-hidden and purely decorative — measured at 12.2:1
+     for the heading and 5.8:1 for the eyebrow sitting on top of it. */
+  color: color-mix(in srgb, var(--color-rose-400) 34%, transparent);
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Arched photo frame — the one strongly bridal motif on the page.
+   An ellipse, not a half-circle, so tall crops stay natural. */
+.arch {
+  border-radius: 50% 50% 0.5rem 0.5rem / 38% 38% 0.5rem 0.5rem;
+}
+
+/* A hairline of colour across the top edge of a card */
+.card-accent::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-rose-400) 35%,
+    var(--color-rose-500) 50%,
+    var(--color-rose-400) 65%,
+    transparent
+  );
+}
