@@ -395,6 +395,106 @@ body {
   border-radius: 50% 50% 0.5rem 0.5rem / 38% 38% 0.5rem 0.5rem;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   PETALS ON THE WIND
+
+   Two nested elements per petal, and that is the whole trick: a single
+   element has one `transform`, so the drifting path and the tumbling
+   cannot both live on it. The outer element carries the wind path, the
+   inner one spins on its own clock. Their durations are deliberately
+   unrelated, so no petal ever visibly repeats in step with another.
+
+   Everything animated is `transform` and `opacity` — both compositor
+   properties, so eighteen petals cost no layout and no paint.
+
+   The layer is fixed, `pointer-events: none`, and aria-hidden. It sits
+   at z-40: above the page so petals pass in front of the photographs,
+   below the nav (z-50) so they never drift across the menu, and below
+   the lightbox (z-60) so they never litter an opened photo.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.petal-field {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.petal {
+  position: absolute;
+  top: 0;
+  left: var(--petal-left);
+  opacity: 0;
+  will-change: transform;
+  animation: petal-fall var(--petal-duration) linear var(--petal-delay) infinite;
+}
+
+.petal-inner {
+  display: block;
+  width: var(--petal-size);
+  height: var(--petal-size);
+  /* Asymmetric radii make a petal rather than a circle or a square */
+  border-radius: 100% 0 100% 0;
+  background: linear-gradient(135deg, var(--petal-from), var(--petal-to));
+  animation: petal-flutter var(--petal-spin) ease-in-out infinite;
+}
+
+@keyframes petal-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -12vh, 0);
+  }
+  /* Fade in and out at the ends so nothing pops into or out of existence */
+  8% {
+    opacity: var(--petal-opacity);
+  }
+  25% {
+    transform: translate3d(calc(var(--petal-wind) * 0.3), 18vh, 0);
+  }
+  50% {
+    transform: translate3d(calc(var(--petal-wind) * 0.45), 48vh, 0);
+  }
+  75% {
+    transform: translate3d(calc(var(--petal-wind) * 0.88), 78vh, 0);
+  }
+  92% {
+    opacity: var(--petal-opacity);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--petal-wind), 112vh, 0);
+  }
+}
+
+@keyframes petal-flutter {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+  50% {
+    /* Turning edge-on mid-tumble is what stops it reading as confetti */
+    transform: rotateX(180deg) rotateY(90deg) rotateZ(150deg);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(0deg) rotateZ(360deg);
+  }
+}
+
+/* Fewer petals on a phone: less compositor work, and a small screen fills
+   up far faster than a desktop one. */
+@media (max-width: 640px) {
+  .petal:nth-child(n + 11) {
+    display: none;
+  }
+}
+
+/* Reduced motion means no drifting petals at all — not slower ones. */
+@media (prefers-reduced-motion: reduce) {
+  .petal-field {
+    display: none;
+  }
+}
+
 /* A hairline of colour across the top edge of a card */
 .card-accent::before {
   content: "";

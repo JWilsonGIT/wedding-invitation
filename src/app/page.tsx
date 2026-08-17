@@ -7,6 +7,7 @@ import { Gallery } from "@/components/Gallery";
 import { Gifts } from "@/components/Gifts";
 import { RsvpForm } from "@/components/RsvpForm";
 import { Footer } from "@/components/Footer";
+import { Petals } from "@/components/Petals";
 
 /*
   Order matters: tell them who and when, then where, then what to wear,
@@ -16,6 +17,8 @@ import { Footer } from "@/components/Footer";
 export default function Home() {
   return (
     <>
+      {/* Fixed decorative layer — drifts over the whole page, under the nav */}
+      <Petals />
       <Nav />
       <main className="flex-1">
         <Hero />

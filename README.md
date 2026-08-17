@@ -214,6 +214,28 @@ Cards tilt toward the cursor with a highlight that follows (`Tilt`,
 Gated on `hover: hover` and `pointer: fine`. On a touch screen `:hover` latches
 after a tap, which would strand a card mid-tilt.
 
+### Petals on the wind
+
+A fixed layer of drifting blossom petals (`Petals`, `.petal-field`). No
+JavaScript — it is a server component emitting CSS custom properties, and the
+animation runs on the compositor.
+
+- **Two nested elements per petal.** One element has one `transform`, so the
+  wind path and the tumble cannot share it. The outer carries the drift, the
+  inner spins on an unrelated clock — which is why no two petals ever visibly
+  repeat in step.
+- **The values are hand-picked, not random.** `Math.random()` would generate
+  different numbers on the server and the client and trip a hydration
+  mismatch.
+- **z-40**: above the page so petals pass in front of the photographs, below
+  the nav (z-50) and the lightbox (z-60).
+- Mobile shows 10 of the 18; `prefers-reduced-motion` hides them entirely.
+
+To change the density, edit the `PETALS` array in `src/components/Petals.tsx` —
+each entry is one petal. To confine them to the hero instead of the whole page,
+move `<Petals />` inside `Hero` and change `.petal-field` from `fixed` to
+`absolute`.
+
 ### Motion — 3D scroll and parallax
 
 All of it is **native CSS scroll-driven animation** (`animation-timeline`), not
