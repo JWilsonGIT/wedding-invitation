@@ -539,7 +539,18 @@ body {
   --groom-w: 58px;
   --bride-w: 72px;
   --edge: 0.75rem;
-  --meet-gap: 0px;
+  /*
+    Negative, so he steps a little past the point where their element boxes
+    would merely touch — far enough that their HANDS meet rather than their
+    bounding boxes. Each SVG carries internal padding, so touching boxes
+    still leaves a visible gap between the figures.
+
+    Expressed as a fraction of figure height rather than a fixed pixel
+    value, because the figures scale down on mobile and so does the gap
+    between their hands. Measured: this lands the hand centres ~4px apart
+    at both 1280px and 375px, which reads as clasped.
+  */
+  --meet-gap: calc(var(--figure-h) * -0.25);
 
   position: fixed;
   inset-inline: 0;
@@ -595,19 +606,27 @@ body {
   a sleeve — the knee would rotate about a point that is not the knee. These
   coordinates must stay in step with the joints marked in CoupleWalk.tsx.
 */
-.cw-thigh {
+.cw-thigh,
+.cw-leg-settle {
   transform-box: view-box;
   transform-origin: 24px 56px; /* hip */
 }
 
-.cw-shin {
+.cw-shin,
+.cw-knee-settle {
   transform-box: view-box;
   transform-origin: 24px 79px; /* knee */
 }
 
-.cw-arm {
+.cw-arm,
+.cw-armset {
   transform-box: view-box;
-  transform-origin: 24px 33px; /* shoulder */
+  transform-origin: 24px 33px; /* his shoulder */
+}
+
+.cw-bride-arm {
+  transform-box: view-box;
+  transform-origin: 38px 33px; /* her shoulder — a different viewBox */
 }
 
 .cw-veil {
@@ -617,10 +636,11 @@ body {
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: scroll(root block)) {
+    /* He arrives at 86%, leaving the last stretch for them to join hands */
     .couple-groom {
       animation: couple-walk linear both;
       animation-timeline: scroll(root block);
-      animation-range: 0% 100%;
+      animation-range: 0% 86%;
     }
 
     @keyframes couple-walk {
@@ -663,19 +683,23 @@ body {
     .cw-thigh-a {
       animation: cw-thigh-a linear 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
     }
     .cw-shin-a {
       animation: cw-shin-a linear 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
     }
     /* The far leg is the same cycle, shifted half a stride */
     .cw-thigh-b {
       animation: cw-thigh-b linear 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
     }
     .cw-shin-b {
       animation: cw-shin-b linear 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
     }
 
     @keyframes cw-thigh-a {
@@ -726,10 +750,12 @@ body {
     .cw-arm-near {
       animation: cw-arm-b linear 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
     }
     .cw-arm-far {
       animation: cw-arm-a linear 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
     }
 
     @keyframes cw-arm-a {
@@ -748,6 +774,100 @@ body {
     .cw-bob {
       animation: cw-bob ease-in-out 11 both;
       animation-timeline: scroll(root block);
+      animation-range: 0% 86%;
+    }
+
+    /*
+      ── ARRIVING: SETTLE, THEN JOIN HANDS ────────────────────────────
+
+      The gait holds its last keyframe after 86% — legs apart, mid-stride.
+      These outer groups add a second rotation on top of that held pose,
+      because two animations cannot share one `rotate` and the later one
+      would just cancel the walk. Rotations about the same origin compose,
+      so the numbers here are exactly the complements of the held values:
+
+        thigh-a holds -20deg  →  settle +20deg  → upright
+        shin-a  holds  +5deg  →  settle  -5deg  → straight
+        thigh-b holds +20deg  →  settle -20deg  → upright
+        shin-b  holds  +8deg  →  settle  -8deg  → straight
+
+      If the gait keyframes change, these must change with them.
+    */
+    .cw-leg-settle-a,
+    .cw-knee-settle-a,
+    .cw-leg-settle-b,
+    .cw-knee-settle-b,
+    .cw-arm-far-settle {
+      animation-timing-function: ease-out;
+      animation-fill-mode: both;
+      animation-timeline: scroll(root block);
+      animation-range: 86% 93%;
+    }
+
+    .cw-leg-settle-a {
+      animation-name: cw-settle-thigh-a;
+    }
+    .cw-knee-settle-a {
+      animation-name: cw-settle-shin-a;
+    }
+    .cw-leg-settle-b {
+      animation-name: cw-settle-thigh-b;
+    }
+    .cw-knee-settle-b {
+      animation-name: cw-settle-shin-b;
+    }
+    .cw-arm-far-settle {
+      animation-name: cw-settle-arm-far;
+    }
+
+    @keyframes cw-settle-thigh-a {
+      from { rotate: 0deg; }
+      to   { rotate: 20deg; }
+    }
+    @keyframes cw-settle-shin-a {
+      from { rotate: 0deg; }
+      to   { rotate: -5deg; }
+    }
+    @keyframes cw-settle-thigh-b {
+      from { rotate: 0deg; }
+      to   { rotate: -20deg; }
+    }
+    @keyframes cw-settle-shin-b {
+      from { rotate: 0deg; }
+      to   { rotate: -8deg; }
+    }
+    /* His far arm holds +16deg; bring it to rest at his side */
+    @keyframes cw-settle-arm-far {
+      from { rotate: 0deg; }
+      to   { rotate: -12deg; }
+    }
+
+    /*
+      The reach. His near arm holds -16deg, so -36deg more brings it to
+      -52deg: forward and down, hand out. Hers starts from rest, and
+      POSITIVE rotation swings her hand left — toward him — because she
+      faces the other way.
+    */
+    .cw-arm-near-reach {
+      animation: cw-reach-groom ease-in-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 86% 99%;
+    }
+
+    .cw-bride-arm {
+      animation: cw-reach-bride ease-in-out both;
+      animation-timeline: scroll(root block);
+      animation-range: 86% 99%;
+    }
+
+    @keyframes cw-reach-groom {
+      from { rotate: 0deg; }
+      to   { rotate: -36deg; }
+    }
+
+    @keyframes cw-reach-bride {
+      from { rotate: 0deg; }
+      to   { rotate: 52deg; }
     }
 
     @keyframes cw-bob {

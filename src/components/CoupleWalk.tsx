@@ -1,24 +1,21 @@
 /**
- * The groom walks the width of the page to reach the bride.
+ * The groom walks the width of the page to reach the bride, and they join
+ * hands when he arrives.
  *
- * He starts at the bottom-left, she waits at the bottom-right, and his
- * position is bound to scroll progress — so he arrives exactly as the page
- * runs out. His gait runs on the same scroll timeline, so he steps only while
- * you scroll and stands still when you stop.
+ * The page is divided along the scroll:
+ *   0% → 86%    he walks, his gait bound to scroll so he steps only while
+ *               you scroll and stands still when you stop
+ *   86% → 93%   his stride settles into a stand
+ *   86% → 100%  both reach out; their hands meet at the bottom of the page
+ *   92% → 100%  a heart blooms between them
  *
- * TWO THINGS THE FIRST VERSION GOT WRONG, both fixed here:
- *
- * 1. He was drawn FRONT-FACING. A figure facing the viewer while sliding
- *    sideways cannot read as walking — the brain has no forward direction to
- *    attach the motion to, so it reads as moon-walking. Both figures are now
- *    in profile, and he faces the way he is going. The bride faces left, back
- *    toward him, so they end up looking at each other.
- *
- * 2. His legs were single rigid segments. A straight leg swinging from the hip
- *    is a pendulum, not a stride. Each leg is now a thigh with a shin nested
- *    inside it, pivoting at the knee — so the trailing leg folds as it lifts
- *    and straightens again to land, which is the part the eye actually reads
- *    as walking.
+ * WHY THE LIMBS ARE DOUBLE-WRAPPED. The gait runs as 11 iterations, so when
+ * it ends it holds the final keyframe — legs apart, mid-stride. Two animations
+ * cannot share one `rotate`, and the later one would simply win and cancel the
+ * walk. So each joint has an outer group that adds a second rotation on top of
+ * the held pose: the leg settles cancel the ±20° stride, and the arm groups add
+ * the reach. Rotations about the same origin compose, so the two layers add up
+ * cleanly.
  *
  * No JavaScript: a server component plus CSS scroll-driven animation.
  * Decorative, so the scene is aria-hidden and ignores pointer events.
@@ -64,8 +61,12 @@ function Groom() {
     >
       {/* Painted back to front: far limbs, body, then near limbs */}
       <g className="cw-bob">
-        <g className="cw-arm cw-arm-far">
-          <rect x="21" y="31" width="7" height="28" rx="3.5" fill="#3E3A3C" />
+        {/* Far arm: swings, then settles to hang at his side */}
+        <g className="cw-armset cw-arm-far-settle">
+          <g className="cw-arm cw-arm-far">
+            <rect x="21" y="31" width="7" height="26" rx="3.5" fill="#3E3A3C" />
+            <circle cx="24.5" cy="55" r="3.9" fill="#3E3A3C" />
+          </g>
         </g>
 
         <Leg side="far" />
@@ -89,33 +90,51 @@ function Groom() {
 
         <Leg side="near" />
 
-        <g className="cw-arm cw-arm-near">
-          <rect x="21" y="31" width="7.5" height="28" rx="3.75" fill="#6E6469" />
+        {/* Near arm: swings, then reaches for her hand */}
+        <g className="cw-armset cw-arm-near-reach">
+          <g className="cw-arm cw-arm-near">
+            <rect x="21" y="31" width="7.5" height="26" rx="3.75" fill="#6E6469" />
+            <circle className="cw-hand cw-hand-groom" cx="24.75" cy="57" r="4.2" fill="#6E6469" />
+          </g>
         </g>
       </g>
     </svg>
   );
 }
 
-/** Thigh, with the shin nested inside it so the knee bends off the hip. */
+/**
+ * Thigh with the shin nested inside it, so the knee bends off the hip.
+ * Each is wrapped in a settle group that cancels the held stride at the end —
+ * see the note at the top of the file.
+ */
 function Leg({ side }: { side: "near" | "far" }) {
+  const key = side === "near" ? "a" : "b";
   const thigh = side === "near" ? "#565055" : "#3E3A3C";
   const shin = side === "near" ? "#4A4448" : "#332F31";
   const shoe = side === "near" ? "#2B2729" : "#211E20";
 
   return (
-    <g className={`cw-thigh cw-thigh-${side === "near" ? "a" : "b"}`}>
-      <rect x="19.75" y="54" width="8.5" height="27" rx="4.25" fill={thigh} />
-      <g className={`cw-shin cw-shin-${side === "near" ? "a" : "b"}`}>
-        <rect x="20.25" y="77" width="7.5" height="23" rx="3.75" fill={shin} />
-        {/* Shoe points right, the way he is walking */}
-        <path d="M20 97 h5 l10 4 q1.6 0.8 0 2.2 h-15 z" fill={shoe} />
+    <g className={`cw-leg-settle cw-leg-settle-${key}`}>
+      <g className={`cw-thigh cw-thigh-${key}`}>
+        <rect x="19.75" y="54" width="8.5" height="27" rx="4.25" fill={thigh} />
+        <g className={`cw-knee-settle cw-knee-settle-${key}`}>
+          <g className={`cw-shin cw-shin-${key}`}>
+            <rect x="20.25" y="77" width="7.5" height="23" rx="3.75" fill={shin} />
+            {/* Shoe points right, the way he is walking */}
+            <path d="M20 97 h5 l10 4 q1.6 0.8 0 2.2 h-15 z" fill={shoe} />
+          </g>
+        </g>
       </g>
     </g>
   );
 }
 
-/** In profile, facing left — turned toward the groom as he arrives. */
+/**
+ * In profile, facing left — turned toward the groom as he arrives.
+ *
+ * Her shoulder is at 38, 33 so her hand meets his at the same height.
+ * She keeps the bouquet in her far hand, leaving the near arm free to reach.
+ */
 function Bride() {
   return (
     <svg
@@ -131,6 +150,14 @@ function Bride() {
           fill="var(--color-rose-400)"
           opacity="0.32"
         />
+      </g>
+
+      {/* Bouquet, held in her far hand and away from the groom */}
+      <g className="cw-bouquet">
+        <path d="M47 52 L48 62" stroke="#8FA98C" strokeWidth="1.4" strokeLinecap="round" />
+        <circle cx="46" cy="49" r="4" fill="var(--color-rose-500)" />
+        <circle cx="50.5" cy="52" r="3.2" fill="var(--color-rose-400)" />
+        <circle cx="44.5" cy="54" r="3" fill="var(--color-rose-600)" />
       </g>
 
       {/* Gown — ivory with a rose outline, or it vanishes against the page */}
@@ -158,12 +185,10 @@ function Bride() {
       />
       <circle cx="47" cy="14" r="5" fill="#2B2729" />
 
-      {/* Bouquet, held in front of her — to her left */}
-      <g className="cw-bouquet">
-        <circle cx="28" cy="50" r="4.2" fill="var(--color-rose-500)" />
-        <circle cx="33" cy="47" r="3.4" fill="var(--color-rose-400)" />
-        <circle cx="33" cy="53" r="3.2" fill="var(--color-rose-600)" />
-        <path d="M30 54 L29 62" stroke="#8FA98C" strokeWidth="1.4" strokeLinecap="round" />
+      {/* Near arm: still at her side, then reaching for his hand */}
+      <g className="cw-bride-arm">
+        <rect x="34.5" y="31" width="7" height="26" rx="3.5" fill="#F3D8E2" />
+        <circle className="cw-hand cw-hand-bride" cx="38" cy="57" r="4.2" fill="#F3D8E2" />
       </g>
     </svg>
   );

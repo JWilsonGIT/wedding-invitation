@@ -217,8 +217,15 @@ after a tap, which would strand a card mid-tilt.
 ### The groom walks to the bride
 
 The groom stands at the bottom-left, the bride at the bottom-right, and his
-position is bound to scroll progress — he arrives beside her exactly as the
-page runs out (`CoupleWalk`, `.couple-scene`).
+position is bound to scroll progress. He arrives, his stride settles, and they
+join hands as the page runs out (`CoupleWalk`, `.couple-scene`).
+
+| Scroll | What happens |
+|---|---|
+| 0 → 86% | he walks, gait bound to scroll |
+| 86 → 93% | his stride settles into a stand |
+| 86 → 99% | both reach out; their hands meet |
+| 90 → 100% | a heart blooms between them |
 
 - **His stride is on the scroll timeline too**, at 11 strides across the page.
   With a scroll timeline, iterations divide the scroll *range* rather than
@@ -236,6 +243,18 @@ page runs out (`CoupleWalk`, `.couple-scene`).
   the difference between walking and sliding.
 - Knees only ever fold backward (`shin >= 0`). Letting that go negative is
   what makes cheap walk cycles look broken-legged.
+- **Each joint is double-wrapped.** Two animations cannot share one `rotate`,
+  and the later one would simply cancel the walk. So an outer group adds a
+  second rotation on top of the gait's held pose: the leg settles are the exact
+  complements of the held stride (`-20°` held, `+20°` settled → upright), and
+  the arm groups add the reach. **If you change the gait keyframes, the settle
+  values must change with them.**
+- **`--meet-gap` is a fraction of figure height, not a fixed pixel value.**
+  Their element boxes touching still leaves a gap between the drawn figures,
+  because each SVG carries internal padding — and that gap scales with the
+  figures, which shrink on mobile. Measured: hand centres end 3.3px apart at
+  375px and 4.8px at 1280px, inside the hand radius at both, so they read as
+  clasped rather than merely near.
 - **Distance uses `cqw`, not `vw`.** `100vw` includes the scrollbar, so on a
   desktop with a classic scrollbar he would overshoot by ~15px and walk into
   the bride. The scene is a size container, so `100cqw` is the real usable
