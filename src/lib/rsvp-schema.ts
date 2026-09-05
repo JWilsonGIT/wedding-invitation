@@ -1,7 +1,4 @@
 import { z } from "zod";
-import { wedding } from "@/config/wedding";
-
-const MAX_GUESTS = wedding.rsvp.maxGuestsPerRsvp;
 
 /**
  * One schema, imported by both the form and the API route.
@@ -39,20 +36,6 @@ export const rsvpSchema = z
       error: "Please let us know whether you can make it.",
     }),
 
-    /* Absent or blank means "one" — a guest who declines never sees this
-       field, so it must not be able to fail validation for them. */
-    guests: z.preprocess(
-      (value) => (value === "" || value === undefined || value === null ? 1 : value),
-      z.coerce
-        .number()
-        .int("Whole numbers only.")
-        .min(1, "At least one of you, we hope.")
-        .max(
-          MAX_GUESTS,
-          `We can take up to ${MAX_GUESTS} per reply — please call us for a larger group.`,
-        ),
-    ),
-
     message: z
       .string()
       .trim()
@@ -61,18 +44,30 @@ export const rsvpSchema = z
 
     /* Honeypot. Hidden from guests, irresistible to bots. Validated loosely
        here and judged in the route, so a bot gets a cheerful 200 instead of
-       an error that tells it what to fix. */
-    website: z.string().max(200).optional(),
+       an error that tells it what to fix.
+
+       NOT named "website", and that matters. Chrome's profile autofill and
+       most password managers keep a "website"/"url" concept and will fill a
+       field called that even through autocomplete="off" — which silently
+       discarded a real guest's reply once. This name is in no autofill
+       dictionary, while a bot that fills every input it finds still trips it.
+
+       If you rename it, rename it in all three places at once — this key,
+       the input in RsvpForm, and the check in the route. z.object strips
+       unknown keys, so a half-rename disables spam protection silently. */
+    botField: z.string().max(200).optional(),
   })
   .transform((data) => ({
     ...data,
-    /* A decline has no headcount. Normalising here means the sheet can
-       never read "not attending — 3 guests". */
-    guests: data.attending === "yes" ? data.guests : 0,
+    /* One invitation, one seat — the form never asks for a headcount, so it
+       is set here rather than accepted from the request. A hand-rolled POST
+       carrying "guests": 5 is stripped by z.object and overwritten by this,
+       so the no-plus-one rule holds server-side and not just in the UI.
+       A decline has no seat, which keeps the sheet from ever reading
+       "not attending — 1 guest". */
+    guests: data.attending === "yes" ? 1 : 0,
   }));
 
 export type RsvpInput = z.input<typeof rsvpSchema>;
 export type RsvpRecord = z.output<typeof rsvpSchema>;
 export type RsvpFieldErrors = Partial<Record<keyof RsvpInput, string[]>>;
-
-export const MAX_GUESTS_PER_RSVP = MAX_GUESTS;

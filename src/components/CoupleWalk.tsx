@@ -21,9 +21,10 @@
  * Decorative, so the scene is aria-hidden and ignores pointer events.
  *
  * Silhouettes rather than illustrated faces — elegant at 100px tall, and no
- * need to guess at features. Groom in gray, the gentlemen's colour in the
- * dress code; bride in ivory with a rose outline, since white on white would
- * disappear.
+ * need to guess at features. Groom in gray, bride in ivory with a rose
+ * outline, since white on white would disappear. The gray is for contrast
+ * against her ivory, not a match to the dress code — the gentlemen wear
+ * khaki there.
  */
 export function CoupleWalk() {
   return (

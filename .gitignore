@@ -45,3 +45,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated renders and previews from the scripts in this folder — every
+# file here is reproducible by re-running its generator, and the debug
+# images alone run to ~20MB. The scripts themselves live in scripts/.
+/scripts/out/
+
+# Python bytecode from the outline generator.
+__pycache__/
+*.pyc

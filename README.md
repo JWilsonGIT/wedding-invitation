@@ -134,8 +134,9 @@ Only set `site.url` in the config if you buy a custom domain.
 ## Counting your guests
 
 In the sheet, the **Attending** column reads `Attending` / `Not attending` and
-**Guests** holds the headcount for that reply (a decline always stores `0`, so
-you can sum the column safely).
+**Guests** holds `1` for an accepted invitation and `0` for a decline, so you
+can sum the column safely. Every invitation is for one person — there is no
+headcount field to fill in — so that total is also your guest count.
 
 For a running total, open the Apps Script editor, pick `countAttending` from the
 function dropdown, press Run, and read the Execution log.
@@ -149,9 +150,21 @@ Colours and fonts are defined once, at the top of `src/app/globals.css`.
 The palette is white, with **pink and gray** accents. They divide the work:
 
 - **Pink** — celebration, and the one primary action (RSVP)
-- **Gray** — the gentlemen's colour, and everything practical: directions,
-  secondary buttons, logistical notes
+- **Gray** — everything practical: directions, secondary buttons, logistical
+  notes, and the two practical doors on Panel III
 - **White** — the ground
+
+Gray used to double as the gentlemen's colour. It no longer does — the
+gentlemen wear khaki, and khaki is split across the two files on purpose:
+
+- The **swatch values** are in `wedding.ts`, because what guests are asked to
+  wear is content and should be editable without touching the interface.
+- Three **chrome tokens** (`khaki-50/200/700`) are in `globals.css`, because
+  the card those swatches sit in is interface.
+
+Khaki is scoped to that one card and nothing else, which is why the ramp has
+three shades instead of the gray ramp's nine. Reach for a fourth and the
+answer is almost certainly that it belongs in a different colour.
 
 Keeping "how to get there" in gray is what leaves pink meaning something. If
 every button is pink, none of them is.
@@ -169,6 +182,7 @@ pinks are illegible as body text. So each accent has exactly one job:
 | `gray-500` | 3.8:1 | Large text only (≥24px) |
 | `gray-600` | 5.7:1 | Gray body text, secondary buttons |
 | `gray-700` | 8.0:1 | Emphasis |
+| `khaki-700` | 6.5:1 | The gentlemen's card heading — its only use |
 
 Putting small text in `rose-400/500` or `gray-400` is the one change that will
 make this page look cheap and read badly. The ink tones are all ≥5:1 too.
@@ -304,8 +318,9 @@ join hands as the page runs out (`CoupleWalk`, `.couple-scene`).
   the bride. The scene is a size container, so `100cqw` is the real usable
   width. Measured landing gap: 0px at both 1280px and 375px.
 - Figures are silhouettes — elegant at 100px tall, and no need to guess at
-  features. Groom in gray (the gentlemen's colour), bride in ivory with a rose
-  outline, because white on white would disappear.
+  features. Groom in gray, bride in ivory with a rose outline, because white
+  on white would disappear. The gray here is for contrast against her ivory,
+  not a match to the dress code — the gentlemen wear khaki.
 - A heart blooms between them over the last 10% of the page.
 
 Sizes are tokens on `.couple-scene` (`--groom-w`, `--bride-w`, `--figure-h`)
@@ -408,6 +423,8 @@ Adding a third stop to the day needs no new code — just another entry in
 ## Deliberately left out
 
 Countdown timer, meal preference, song request, seating charts, QR entry passes
-and an admin panel. Max's serves a set menu, so meal choice is yours rather than
+and an admin panel. Plus-ones are refused by design: each invitation seats the
+one person named on it, the form cannot reply for anybody else, and the schema
+enforces that server-side — so please don't "restore" a guest-count field. Max's serves a set menu, so meal choice is yours rather than
 your guests'; and with no program there's nothing for a song request to feed
 into. All of it is easy to add later — the config-driven structure leaves room.

@@ -38,8 +38,17 @@ export async function POST(request: Request) {
   const data = parsed.data;
 
   /* Honeypot tripped. Answer as though all is well — a bot that gets a
-     clear error just learns which field to leave alone next time. */
-  if (data.website && data.website.trim() !== "") {
+     clear error just learns which field to leave alone next time.
+
+     But LOG it. A guest whose reply is dropped here sees the thank-you
+     screen and has no idea, so a false positive is invisible from both
+     ends; this line is the only way to tell one from real spam. If a real
+     name appears below, the honeypot is catching guests, not bots. */
+  if (data.botField && data.botField.trim() !== "") {
+    console.warn(
+      "RSVP discarded as spam — honeypot filled:",
+      JSON.stringify({ fullName: data.fullName, mobile: data.mobile, botField: data.botField }),
+    );
     return NextResponse.json({ ok: true });
   }
 
@@ -119,7 +128,7 @@ export async function POST(request: Request) {
  * exists. JSONL because appending a line cannot corrupt earlier entries
  * the way rewriting a JSON array can.
  */
-async function appendLocally(record: Omit<RsvpRecord, "website"> & { submittedAt: string }) {
+async function appendLocally(record: Omit<RsvpRecord, "botField"> & { submittedAt: string }) {
   await fs.mkdir(path.dirname(LOCAL_STORE), { recursive: true });
   await fs.appendFile(LOCAL_STORE, `${JSON.stringify(record)}\n`, "utf8");
   console.info(`RSVP stored locally in .data/rsvps.jsonl — ${record.fullName}`);

@@ -12,8 +12,6 @@ import { Ornament } from "./Ornament";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
-const MAX_GUESTS = wedding.rsvp.maxGuestsPerRsvp;
-
 export function RsvpForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [fieldErrors, setFieldErrors] = useState<RsvpFieldErrors>({});
@@ -113,6 +111,15 @@ export function RsvpForm() {
         so we can set the table.
       </p>
 
+      {/* The one place the invitation says no to a guest. Kept in the config
+          beside the deadline it sits under, so it can be reworded — or
+          emptied to hide it — without opening a component. */}
+      {wedding.rsvp.plusOneNote ? (
+        <p className="mx-auto mt-4 max-w-xl text-center text-sm text-ink-400">
+          {wedding.rsvp.plusOneNote}
+        </p>
+      ) : null}
+
       <form
         ref={formRef}
         onSubmit={handleSubmit}
@@ -133,11 +140,11 @@ export function RsvpForm() {
         {/* Honeypot: off-screen, unlabelled, skipped by keyboard and
             ignored by autofill. Bots fill it; guests never see it. */}
         <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-          <label htmlFor={fieldId("website")}>Website</label>
+          <label htmlFor={fieldId("botField")}>Leave this field empty</label>
           <input
-            id={fieldId("website")}
+            id={fieldId("botField")}
             type="text"
-            name="website"
+            name="botField"
             tabIndex={-1}
             autoComplete="off"
             defaultValue=""
@@ -151,6 +158,10 @@ export function RsvpForm() {
             id={fieldId("fullName")}
             errorId={errorId("fullName")}
             errors={fieldErrors.fullName}
+            /* States the rule as a plain fact. The full, polite version is
+               the aside above the form — saying "no plus-ones" twice on one
+               screen reads as scolding. */
+            hint="One name per invitation."
           >
             <input
               id={fieldId("fullName")}
@@ -237,33 +248,6 @@ export function RsvpForm() {
               <FieldError id={errorId("attending")} messages={fieldErrors.attending} />
             ) : null}
           </fieldset>
-
-          {/* Only asked of guests who are coming. */}
-          {attending === "yes" ? (
-            <Field
-              label="How many of you, in total?"
-              name="guests"
-              id={fieldId("guests")}
-              errorId={errorId("guests")}
-              errors={fieldErrors.guests}
-              hint="Including yourself."
-            >
-              <select
-                id={fieldId("guests")}
-                name="guests"
-                defaultValue="1"
-                aria-invalid={fieldErrors.guests ? true : undefined}
-                aria-describedby={fieldErrors.guests ? errorId("guests") : undefined}
-                className={inputClass(!!fieldErrors.guests)}
-              >
-                {Array.from({ length: MAX_GUESTS }, (_, index) => index + 1).map((n) => (
-                  <option key={n} value={n}>
-                    {n === 1 ? "Just me" : `${n} guests`}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          ) : null}
 
           <Field
             label="A note for us"

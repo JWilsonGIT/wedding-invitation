@@ -18,9 +18,26 @@ type Props = {
   coords?: string;
   /** Venue name, used for the iframe's accessible title. */
   venue: string;
+  /**
+   * Shorter map, for places where the height budget is fixed — the
+   * no-scroll detail sheets have no room to give and no scrollbar to
+   * borrow, so the map gives up the pixels instead of the address.
+   */
+  compact?: boolean;
+  /**
+   * Extra classes for the outer element.
+   *
+   * This exists so a caller can animate the map WITHOUT wrapping it in a
+   * div. That distinction is not cosmetic: on a landscape phone
+   * .where-detail becomes a two-column grid and zeroes this element's top
+   * margin via `> div:last-child`. A wrapper takes that selector's place,
+   * the margin comes back, the card grows, and the panel's heading is
+   * pushed off the top of the screen — which is exactly what happened.
+   */
+  className?: string;
 };
 
-export function MapEmbed({ query, mapsUrl, coords, venue }: Props) {
+export function MapEmbed({ query, mapsUrl, coords, venue, compact = false, className = "" }: Props) {
   const encoded = encodeURIComponent(query);
 
   /* Google keeps the text query so the pin arrives labelled with the place
@@ -36,7 +53,7 @@ export function MapEmbed({ query, mapsUrl, coords, venue }: Props) {
     : `https://waze.com/ul?q=${encoded}&navigate=yes`;
 
   return (
-    <div className="mt-7">
+    <div className={`${compact ? "mt-5" : "mt-7"} ${className}`.trim()}>
       <div className="overflow-hidden rounded-lg border border-blush-200 bg-blush-50">
         <iframe
           src={embedSrc}
@@ -44,7 +61,7 @@ export function MapEmbed({ query, mapsUrl, coords, venue }: Props) {
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           allowFullScreen
-          className="block h-56 w-full border-0 sm:h-64"
+          className={`block w-full border-0 ${compact ? "h-36 sm:h-40" : "h-56 sm:h-64"}`}
         />
       </div>
 

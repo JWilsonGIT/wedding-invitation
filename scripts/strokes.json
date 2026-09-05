@@ -1,0 +1,157 @@
+{
+  "_comment": [
+    "HAND-AUTHORED PEN PATHS. Not generated \u2014 regenerating the outlines does not",
+    "touch this file. Coordinates are hundredths of an em, y-down, line A's",
+    "baseline at y=0, matching name-outlines.generated.ts exactly.",
+    "",
+    "`shapes` holds one entry per LETTERFORM, authored once. `place` puts those",
+    "shapes onto the glyph ids from the generated artwork, with a translation.",
+    "That is why 'a' and 'n' are drawn once each and used twice: the same",
+    "outline appears in both names, just moved.",
+    "",
+    "`of` is the stroke's share of its line's total pen length. Shares within a",
+    "line must sum to 1. They set duration, so the pen keeps a constant speed",
+    "instead of crawling through short strokes and racing through long ones.",
+    "`weight` is the placed glyph's share of its line; `of` is the stroke's share of that glyph. weight * of is the stroke's share of the line, and those sum to 1."
+  ],
+  "width": 14,
+  "shapes": {
+    "A": [
+      {
+        "d": "M7,-19 C4,-12 9,-3 19,-1 C28,1 39,-5 51,-15 C66,-28 84,-44 99,-56",
+        "of": 0.5,
+        "ductus": "Entry swash at the lower left, round the bottom loop, then the long thick diagonal up to the apex."
+      },
+      {
+        "d": "M44,-42 C51,-55 68,-63 84,-60 C95,-58 100,-52 97,-45 C93,-33 88,-18 86,-9 C85,-3 91,-3 98,-5",
+        "of": 0.36,
+        "ductus": "The hood: up over the top from the left, then straight down the right stem and out with a small curl."
+      },
+      {
+        "d": "M27,-26 C45,-29 68,-28 84,-27",
+        "of": 0.14,
+        "ductus": "Crossbar, left to right. Last, as it is in handwriting."
+      }
+    ],
+    "n": [
+      {
+        "d": "M104,-17 C105,-23 110,-25 111,-21 C112,-16 107,-8 104,-1 C108,-9 116,-19 123,-23 C128,-26 130,-21 128,-15 C126,-9 123,-4 124,-2 C126,1 130,-2 133,-6",
+        "of": 1,
+        "ductus": "One motion: entry hook, down the first stem, up and over the arch, down the second stem, exit up-right."
+      }
+    ],
+    "a": [
+      {
+        "d": "M161,-22 C157,-26 147,-26 142,-20 C137,-14 136,-6 140,-2 C144,1 150,-2 154,-8 C158,-14 160,-19 161,-23 C160,-17 157,-9 156,-4 C155,-1 160,-3 165,-6",
+        "of": 1,
+        "ductus": "Bowl anticlockwise from the top right, back up the right side, then down the stem and out. The retrace up the right side is real handwriting, not a mistake."
+      }
+    ],
+    "J": [
+      {
+        "d": "M191,38 C176,39 158,48 151,62 C145,73 148,81 160,84 C169,86 178,85 186,83",
+        "of": 0.33,
+        "ductus": "The head loop, leftward off the top tip and round underneath."
+      },
+      {
+        "d": "M189,42 C179,59 168,79 156,96 C144,112 128,122 117,116 C109,110 113,97 123,89 C128,86 132,85 136,84",
+        "of": 0.67,
+        "ductus": "The long descender from the same top tip, down through the bottom loop and away up to the left."
+      }
+    ],
+    "amp": [
+      {
+        "d": "M131,11 C124,9 118,14 121,20 C124,26 131,30 137,34 C140,36 143,35 143,32",
+        "of": 0.55,
+        "ductus": "Over the top of the loop, down its left side, then the long diagonal through the crossing to the right foot."
+      },
+      {
+        "d": "M141,25 C135,24 129,25 124,27 C118,29 115,32 118,35 C122,37 130,37 136,35 C140,33 142,30 143,26",
+        "of": 0.45,
+        "ductus": "Back for the bowl: left under the diagonal, round the bottom-left, and out to the right terminal."
+      }
+    ],
+    "o": [
+      {
+        "of": 1.0,
+        "d": "M196,79 C193,75 187,74 183,78 C179,82 178,90 182,95 C186,99 193,98 196,93 C199,88 198,82 196,79"
+      }
+    ],
+    "h": [
+      {
+        "of": 0.63,
+        "d": "M205,100 C210,88 218,70 228,52 C236,38 243,28 250,25 C256,23 259,27 257,32"
+      },
+      {
+        "of": 0.37,
+        "d": "M209,93 C214,82 222,74 228,76 C232,79 229,88 227,95 C226,99 230,99 233,96"
+      }
+    ]
+  },
+  "place": [
+    {
+      "glyph": "A0",
+      "shape": "A",
+      "dx": 0,
+      "dy": 0,
+      "line": "a",
+      "weight": 0.52
+    },
+    {
+      "glyph": "n1",
+      "shape": "n",
+      "dx": 0,
+      "dy": 0,
+      "line": "a",
+      "weight": 0.23
+    },
+    {
+      "glyph": "a2",
+      "shape": "a",
+      "dx": 0,
+      "dy": 0,
+      "line": "a",
+      "weight": 0.25
+    },
+    {
+      "glyph": "amp",
+      "shape": "amp",
+      "dx": 0,
+      "dy": 0,
+      "line": "amp",
+      "weight": 1.0
+    },
+    {
+      "glyph": "J0",
+      "shape": "J",
+      "dx": 0,
+      "dy": 0,
+      "line": "b",
+      "weight": 0.4457
+    },
+    {
+      "glyph": "o1",
+      "shape": "o",
+      "dx": 0,
+      "dy": 0,
+      "line": "b",
+      "weight": 0.1101
+    },
+    {
+      "glyph": "h2",
+      "shape": "h",
+      "dx": 0,
+      "dy": 0,
+      "line": "b",
+      "weight": 0.2709
+    },
+    {
+      "glyph": "n3",
+      "shape": "n",
+      "dx": 132.43,
+      "dy": 100,
+      "line": "b",
+      "weight": 0.1733
+    }
+  ]
+}

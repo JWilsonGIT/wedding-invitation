@@ -9,6 +9,31 @@ import { Tilt } from "./Tilt";
 
 const images = wedding.gallery.images;
 
+/*
+  The mosaic has two tile sizes, so it needs two `sizes`. One shared
+  value cannot work: the first two photographs are 2x2 and reach ~517px
+  on a full-width collage, where a single "25vw" would ask for half that
+  and hand back a soft, upscaled photograph.
+
+  1088px is where the section's max-w-5xl column stops growing and pins
+  at 1024px. The vw figures deliberately ignore the section padding,
+  which makes them slightly generous — the right direction for `sizes`.
+*/
+const TILE_LARGE = "(min-width: 1088px) 528px, (min-width: 768px) 50vw, 50vw";
+const TILE_SMALL = "(min-width: 1088px) 264px, (min-width: 768px) 25vw, 50vw";
+
+/*
+  The mosaic names exactly six slots, so it only holds together with
+  exactly six photographs: a seventh would overflow the locked box, and
+  a fifth would leave a hole in it. wedding.ts is meant to be edited
+  freely by someone who is not a developer, so any other count falls
+  back to the plain grid rather than breaking the page.
+*/
+/* NOTE: this component is no longer rendered — page.tsx mounts the deck,
+   and the .mosaic styles it relies on have been removed. Kept only so the
+   file still typechecks; the range mirrors the deck gallery. */
+const isMosaic = images.length >= 6 && images.length <= 12;
+
 export function Gallery() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   /* Remember which thumbnail opened the lightbox so focus can go back
@@ -57,30 +82,59 @@ export function Gallery() {
         {wedding.gallery.heading}
       </SectionHeading>
 
-      <ul className="mt-14 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+      <ul
+        className={
+          isMosaic
+            ? "mosaic mt-14"
+            : "mt-14 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3"
+        }
+      >
         {images.map((image, index) => (
           /* Each photo tilts up out of the page on its own scroll range,
-             so the grid assembles itself rather than appearing at once. */
+             so the collage assembles itself rather than appearing at once. */
           <li key={image.src} className="tilt-3d">
-            <Tilt className="arch" max={7} lift={5}>
+            {/* h-full the whole way down — li, Tilt, button, span. In the
+                mosaic the cell decides the height, and the photo has to
+                fill whatever the tracks have given it at this instant. One
+                break in the chain and the tile collapses to nothing. */}
+            <Tilt className={isMosaic ? "h-full" : "arch"} max={7} lift={5}>
               <button
                 type="button"
                 onClick={(event) => {
                   triggerRef.current = event.currentTarget;
                   setOpenIndex(index);
                 }}
-                /* The arch is the one unmistakably bridal shape on the page —
-                   a chapel window, and the frame every wedding photographer
-                   already shoots for. */
-                className="arch group block w-full overflow-hidden border border-blush-200 bg-blush-50"
+                /* Square corners in the mosaic: the tiles are squares set
+                   in a tight grid, and a radius on each one would round the
+                   seams into a row of lozenges. The arch — the bridal motif
+                   used everywhere else — is kept for the fallback grid, where
+                   the tiles stand apart and can carry it. */
+                className={`group block w-full overflow-hidden border border-blush-200 bg-blush-50 ${
+                  isMosaic ? "h-full" : "arch"
+                }`}
                 aria-label={`View larger: ${image.alt}`}
               >
-                <span className="relative block aspect-[4/5]">
+                <span
+                  className={
+                    isMosaic
+                      ? "relative block h-full"
+                      : "relative block aspect-[4/5]"
+                  }
+                >
                   <Image
                     src={image.src}
                     alt={image.alt}
                     fill
-                    sizes="(min-width: 768px) 33vw, 50vw"
+                    sizes={
+                      isMosaic
+                        ? index < 2
+                          ? TILE_LARGE
+                          : TILE_SMALL
+                        : "(min-width: 768px) 33vw, 50vw"
+                    }
+                    /* Every tile is square, so object-cover crops each
+                       photograph to its centre — portrait and landscape
+                       sources alike come out as squares. */
                     className="object-cover transition-transform duration-500 ease-gentle group-hover:scale-[1.04]"
                   />
                 </span>
@@ -132,7 +186,7 @@ export function Gallery() {
               width={active.width}
               height={active.height}
               sizes="(min-width: 768px) 768px, 100vw"
-              className="mx-auto max-h-[85vh] w-auto rounded-lg object-contain"
+              className="mx-auto max-h-[85vh] w-auto object-contain"
             />
           </div>
         </div>
