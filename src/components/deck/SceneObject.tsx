@@ -139,7 +139,12 @@ export function Envelope({ onClick, initials }: { onClick: () => void; initials:
       busy={opening}
       label="Open the invitation — go to our photographs"
       caption="Open the invitation"
-      hint="or press the right arrow key"
+      /* No `hint`. It read "or press the right arrow key" and was the only
+         place the deck advertised its keyboard shortcut — removed as a
+         visual choice. Nothing about the keyboard changed: the envelope is
+         a real button, so Tab then Enter still advances, the arrow keys
+         still work, and the deck numerals are still focusable. The
+         affordance is simply no longer announced. */
     >
       <svg
         viewBox="0 0 132 96"
