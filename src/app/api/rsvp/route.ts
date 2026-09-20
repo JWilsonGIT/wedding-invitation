@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { rsvpSchema, type RsvpRecord } from "@/lib/rsvp-schema";
+import { wedding } from "@/config/wedding";
 
 /*
   Why this route exists at all:
@@ -15,6 +16,30 @@ import { rsvpSchema, type RsvpRecord } from "@/lib/rsvp-schema";
 */
 
 export const runtime = "nodejs";
+
+/*
+  HOW LONG GOOGLE IS ALLOWED TO TAKE.
+
+  Apps Script is slow and wildly inconsistent. Round-trips measured from
+  one machine on one afternoon: 11.0s, 11.4s, 14.0s, and one that still had
+  not answered after 60s. The row itself is written almost
+  immediately; what varies is how long Google takes to hand the reply back,
+  including a 302 through script.googleusercontent.com.
+
+  This used to wait ten seconds, which sits right in the middle of that
+  range. So roughly every other reply was abandoned mid-flight while the
+  row was already in the sheet: the guest saw an error, pressed send again,
+  and wrote a duplicate. It looked like a phone-only bug because the first
+  person to hit it was on a phone. It is not — the webhook call happens
+  here, on the server, and knows nothing about the device. It is a coin
+  toss on every submission.
+
+  30 seconds covers everything but the pathological tail. maxDuration must
+  be comfortably larger, or the platform kills the function first and the
+  guest gets a gateway error page instead of anything written below.
+*/
+export const maxDuration = 60;
+const WEBHOOK_TIMEOUT_MS = 30_000;
 
 const LOCAL_STORE = path.join(process.cwd(), ".data", "rsvps.jsonl");
 
@@ -94,7 +119,7 @@ export async function POST(request: Request) {
       /* Apps Script answers with a 302 to script.googleusercontent.com;
          fetch follows it by default, but be explicit about the intent. */
       redirect: "follow",
-      signal: AbortSignal.timeout(10_000),
+      signal: AbortSignal.timeout(WEBHOOK_TIMEOUT_MS),
     });
 
     const body = await response.text();
@@ -112,6 +137,33 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
+    /* A timeout is not the same failure as a refused connection, and the
+       guest must not be told the same thing about both.
+
+       Timed out: the POST left here, so Apps Script has almost certainly
+       written the row and merely failed to say so in time. Inviting a
+       retry would duplicate a reply that is already in the sheet.
+
+       Could not connect: nothing was sent, nothing was written, and trying
+       again is exactly the right advice. */
+    const timedOut =
+      error instanceof Error &&
+      (error.name === "TimeoutError" || error.name === "AbortError");
+
+    if (timedOut) {
+      console.error(
+        `RSVP webhook did not answer within ${WEBHOOK_TIMEOUT_MS}ms. The row may still have been written — check the sheet before assuming this reply was lost:`,
+        JSON.stringify({ fullName: record.fullName, mobile: record.mobile }),
+      );
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `Your reply may have gone through — our list is just slow to answer. Please don't send it twice; call us on ${wedding.rsvp.contactNumber} if you'd like to be sure.`,
+        },
+        { status: 504 },
+      );
+    }
+
     console.error("Failed to reach the RSVP webhook:", error);
     return NextResponse.json(
       {

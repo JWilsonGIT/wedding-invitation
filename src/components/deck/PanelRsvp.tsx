@@ -129,7 +129,20 @@ export function PanelRsvp({ active }: { active: boolean }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
-        const result = await response.json();
+        /* Read the body as text and parse it ourselves. Anything that fails
+           before the route runs — a gateway timeout, a platform error —
+           answers with an HTML page, and response.json() throws on it. That
+           threw us into the catch below, which blamed the guest list: the
+           one explanation that is certainly wrong when the request never
+           reached the guest list at all. */
+        const raw = await response.text();
+        let result: { ok?: boolean; error?: string; fieldErrors?: RsvpFieldErrors } = {};
+        try {
+          if (raw) result = JSON.parse(raw);
+        } catch {
+          /* Not JSON. Leave result empty and fall into the generic message
+             below, which is honest about not knowing what happened. */
+        }
 
         if (!response.ok || !result.ok) {
           if (result.fieldErrors) {
@@ -138,7 +151,10 @@ export function PanelRsvp({ active }: { active: boolean }) {
             if (firstField && STEP_OF[firstField] !== undefined) goStep(STEP_OF[firstField]);
           }
           setFormError(
-            result.error ?? "Please check the details above and try once more.",
+            result.error ??
+              (result.fieldErrors
+                ? "Please check the details above and try once more."
+                : `Something went wrong at our end, and we can't tell whether your reply was saved. Please call us on ${wedding.rsvp.contactNumber} rather than sending it twice.`),
           );
           setStatus("error");
           return;
@@ -147,7 +163,13 @@ export function PanelRsvp({ active }: { active: boolean }) {
         setReplied(payload.attending === "no" ? "no" : "yes");
         setStatus("success");
       } catch {
-        setFormError("We couldn't reach our guest list. Please try again in a moment.");
+        /* The request never left this device — dropped connection, a
+           network switched mid-send. Nothing was saved, so trying again is
+           safe, and saying so is better than naming a guest list this
+           never reached. */
+        setFormError(
+          "We couldn't send that — check your connection and try once more.",
+        );
         setStatus("error");
       }
     },
