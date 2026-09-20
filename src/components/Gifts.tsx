@@ -40,14 +40,13 @@ export function Gifts() {
                 {method.qr ? (
                   <Image
                     src={method.qr}
-                    alt={`${method.name} QR code for ${method.accountName}`}
+                    alt={`${method.name} QR code`}
                     width={180}
                     height={180}
                     className="mt-5 rounded-md border border-blush-200"
                   />
                 ) : null}
 
-                <p className="mt-5 text-sm text-ink-600">{method.accountName}</p>
                 <p className="mt-1 text-sm tracking-wide text-ink-400">
                   {method.accountNumber}
                 </p>

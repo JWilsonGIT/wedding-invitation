@@ -59,6 +59,20 @@ const BIG_TILES = new Set([1, 2, 3, 4, 5, 6]);
   the stage and are clipped there, which is what stops six photographs
   looking like six photographs politely arranged.
 */
+/* How long a card takes to leave the top of the stack. Must match
+   `lightbox-card-out` in globals.css, or the outgoing print is unmounted
+   mid-flight (too short) or lingers invisibly over the new one (too long). */
+const EXIT_MS = 380;
+
+type Leaving = {
+  index: number;
+  /** 1 when stepping forward, -1 back. The card exits the way you came from. */
+  dir: 1 | -1;
+  /** Measured before the swap, so the card keeps its own aspect on the way out. */
+  w: number;
+  h: number;
+};
+
 export function PanelPhotos({
   onAdvance,
   active,
@@ -70,16 +84,63 @@ export function PanelPhotos({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
+  /*
+    THE CARD ON ITS WAY OUT. It has to stay mounted for a moment after the
+    index moves on, or there is nothing to animate away and the stack is
+    just a cross-fade.
+
+    It carries its own MEASURED width and height, which is the part that
+    is easy to miss: these photographs are a mix of portrait and
+    landscape, so an outgoing card left to fill the box would inherit the
+    INCOMING one's shape. A portrait print would snap to a landscape
+    frame and letterbox itself against the white card for the whole exit.
+    Measuring before the swap keeps it the shape it was.
+  */
+  const [leaving, setLeaving] = useState<Leaving | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const leaveTimer = useRef<number | null>(null);
+
   const close = useCallback(() => {
     setOpenIndex(null);
+    /* A card mid-exit when the lightbox shuts would be the first thing on
+       screen the next time it opens. */
+    setLeaving(null);
+    if (leaveTimer.current) window.clearTimeout(leaveTimer.current);
     triggerRef.current?.focus({ preventScroll: true });
   }, []);
 
-  const step = useCallback((delta: number) => {
-    setOpenIndex((current) =>
-      current === null ? null : (current + delta + images.length) % images.length,
-    );
-  }, []);
+
+  const step = useCallback(
+    (delta: number) => {
+      if (openIndex === null) return;
+      const next = (openIndex + delta + images.length) % images.length;
+
+      /*
+        Reduced motion gets the next photograph and nothing else. With no
+        animation to run, a card parked on top for 380ms would just be a
+        stale picture sitting over the right one.
+      */
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        const box = cardRef.current?.getBoundingClientRect();
+        /* If the outgoing photograph had not painted yet there is no box
+           to preserve, and a card dealt away at the wrong size is worse
+           than no card at all. Skip the flourish and just swap. */
+        if (box && box.width > 1 && box.height > 1) {
+          setLeaving({
+            index: openIndex,
+            dir: delta > 0 ? 1 : -1,
+            w: box.width,
+            h: box.height,
+          });
+          if (leaveTimer.current) window.clearTimeout(leaveTimer.current);
+          leaveTimer.current = window.setTimeout(() => setLeaving(null), EXIT_MS);
+        }
+      }
+
+      setOpenIndex(next);
+    },
+    [openIndex, images.length],
+  );
 
   useEffect(() => {
     if (openIndex === null) return;
@@ -207,14 +268,68 @@ export function PanelPhotos({
           <LightboxNav side="right" onClick={() => step(1)} />
 
           <div onClick={(event) => event.stopPropagation()} className="lightbox-stage">
-            <Image
-              src={activePhoto.src}
-              alt={activePhoto.alt}
-              width={activePhoto.width}
-              height={activePhoto.height}
-              sizes="(min-width: 768px) 70vh, 90vw"
-              className="lightbox-image"
-            />
+            <div className="lightbox-deck">
+              {/* The pile the top card is lifted off. Two edges is enough:
+                  a third reads as clutter at this size, and none at all
+                  leaves the card floating with nothing to be the top OF.
+                  They sit behind and take the current card's exact box,
+                  so they follow a portrait-to-landscape change for free. */}
+              <span className="lightbox-under is-two" aria-hidden="true" />
+              <span className="lightbox-under is-one" aria-hidden="true" />
+
+              {/* The card being dealt away. `key` on the index so React
+                  builds a NEW element per step rather than reusing this
+                  one, which would leave the animation already finished. */}
+              {leaving ? (
+                <div
+                  key={`leaving-${leaving.index}`}
+                  aria-hidden="true"
+                  style={{
+                    width: leaving.w || undefined,
+                    height: leaving.h || undefined,
+                    ["--exit-x" as string]: leaving.dir > 0 ? "-62%" : "62%",
+                    ["--exit-rot" as string]: leaving.dir > 0 ? "-11deg" : "11deg",
+                  }}
+                  className="lightbox-card is-leaving"
+                >
+                  <Image
+                    src={images[leaving.index].src}
+                    alt=""
+                    width={images[leaving.index].width}
+                    height={images[leaving.index].height}
+                    sizes="(min-width: 768px) 70vh, 90vw"
+                    loading="eager"
+                    className="lightbox-image"
+                  />
+                </div>
+              ) : null}
+
+              <div
+                key={openIndex}
+                ref={cardRef}
+                style={{
+                  ["--from-rot" as string]: leaving?.dir === -1 ? "2.4deg" : "-2.4deg",
+                }}
+                className="lightbox-card is-current"
+              >
+                <Image
+                  src={activePhoto.src}
+                  alt={activePhoto.alt}
+                  width={activePhoto.width}
+                  height={activePhoto.height}
+                  sizes="(min-width: 768px) 70vh, 90vw"
+                  /* EAGER, and the lightbox is the one place it is
+                     obviously right: a guest has just tapped this exact
+                     photograph. Lazy also left the card with no box at
+                     all until the bytes arrived, because .lightbox-image
+                     sets `width: auto` and an unloaded image has no
+                     intrinsic size to be auto ABOUT. */
+                  loading="eager"
+                  className="lightbox-image"
+                />
+              </div>
+            </div>
+
             <p className="lightbox-count">
               {(openIndex ?? 0) + 1} of {images.length}
             </p>

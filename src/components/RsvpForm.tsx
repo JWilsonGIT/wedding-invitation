@@ -82,7 +82,7 @@ export function RsvpForm() {
         <div className="mx-auto max-w-xl rounded-xl border border-blush-200 bg-white px-6 py-14 text-center sm:px-10">
           <Ornament />
           <h2 className="mt-8 font-display text-3xl font-light text-ink-900">
-            {replied === "yes" ? "Thank you — we cannot wait" : "Thank you for letting us know"}
+            {replied === "yes" ? "Thank you, we can't wait!" : "Thank you for letting us know"}
           </h2>
           <p className="mt-5 text-base leading-relaxed text-ink-600">
             {replied === "yes"

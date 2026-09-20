@@ -10,7 +10,7 @@
  */
 
 type Props = {
-  /** Free-text place search, e.g. "Max's Restaurant Manila East Road, Binangonan". */
+  /** Free-text place search, e.g. "Perlie's Garden Restaurant, Eastridge Ave, Angono". */
   query: string;
   /** Exact Google Maps share link. Far more accurate than a text search. */
   mapsUrl?: string;

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     payload = await request.json();
   } catch {
     return NextResponse.json(
-      { ok: false, error: "We could not read that submission." },
+      { ok: false, error: "We couldn't read that." },
       { status: 400 },
     );
   }
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         {
           ok: false,
           error:
-            "Our form is not connected yet. Please message us directly — we do not want to lose your reply.",
+            "Our form isn't connected yet. Please message us directly so we don't lose your reply.",
         },
         { status: 503 },
       );
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           ok: false,
-          error: "We could not save your reply just now. Please try again in a moment.",
+          error: "We couldn't save your reply just now. Please try again in a moment.",
         },
         { status: 502 },
       );
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         ok: false,
-        error: "We could not reach our guest list. Please try again in a moment.",
+        error: "We couldn't reach our guest list. Please try again in a moment.",
       },
       { status: 502 },
     );

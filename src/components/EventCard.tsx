@@ -2,7 +2,7 @@ import type { WeddingEvent } from "@/config/wedding";
 import { MapEmbed } from "./MapEmbed";
 
 /**
- * One card, used for every event in the day. The church and Max's differ
+ * One card, used for every event in the day. The church and Perlie's differ
  * only in the data handed to it — so adding a third stop needs no new
  * component, just another entry in `wedding.events`.
  */

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { wedding, venueIsPublic } from "@/config/wedding";
 
 /*
   The four things a guest clicks to move through the invitation: a sealed
@@ -137,7 +138,7 @@ export function Envelope({ onClick, initials }: { onClick: () => void; initials:
     <SceneButton
       onClick={handleClick}
       busy={opening}
-      label="Open the invitation — go to our photographs"
+      label="Open the invitation and see our photos"
       caption="Open the invitation"
       /* No `hint`. It read "or press the right arrow key" and was the only
          place the deck advertised its keyboard shortcut — removed as a
@@ -193,7 +194,7 @@ export function PhotoFrame({ onClick }: { onClick: () => void }) {
     <SceneButton
       onClick={() => run(onClick)}
       busy={firing}
-      label="Open the details of the day — the ceremony, the reception, what to wear and gifts"
+      label="Open the details of the day: the ceremony, the reception, what to wear and gifts"
       caption="The day itself"
       hint="two places, one afternoon"
     >
@@ -257,15 +258,24 @@ export function PhotoFrame({ onClick }: { onClick: () => void }) {
    short distance between them. */
 const POINT_MS = 560;
 
+const publicVenues = wedding.events.filter((e) => venueIsPublic(e.id)).length;
+
 export function Signpost({ onClick }: { onClick: () => void }) {
   const [pointing, run] = useSceneAction(POINT_MS);
   return (
     <SceneButton
       onClick={() => run(onClick)}
       busy={pointing}
-      label="See where the ceremony and the reception are, with maps and directions"
+      label={
+        publicVenues === 1
+          ? "See where the ceremony is, with a map and directions"
+          : "See where the ceremony and the reception are, with maps and directions"
+      }
       caption="Getting there"
-      hint="maps for both places"
+      /* Only promise the maps that exist. With one venue still withheld
+         there is exactly one map behind this, and "both places" sends a
+         guest looking for a second one. */
+      hint={publicVenues === 1 ? "map and directions" : "maps for both places"}
     >
       <svg
         viewBox="0 0 116 108"
@@ -303,7 +313,7 @@ export function Chair({ onClick }: { onClick: () => void }) {
     <SceneButton
       onClick={() => run(onClick)}
       busy={seating}
-      label="Reply to the invitation — take your seat"
+      label="Reply to the invitation and take your seat"
       caption="Take your seat"
       hint="one seat, reserved in your name"
     >

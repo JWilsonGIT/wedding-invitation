@@ -147,7 +147,7 @@ export function PanelRsvp({ active }: { active: boolean }) {
         setReplied(payload.attending === "no" ? "no" : "yes");
         setStatus("success");
       } catch {
-        setFormError("We could not reach our guest list. Please try again in a moment.");
+        setFormError("We couldn't reach our guest list. Please try again in a moment.");
         setStatus("error");
       }
     },
@@ -162,12 +162,16 @@ export function PanelRsvp({ active }: { active: boolean }) {
         <div className="panel-inner panel-rsvp-done">
           <Ornament />
           <h2 className="stagger-2 panel-title is-onDark mt-7">
-            {replied === "yes" ? "Thank you — we cannot wait" : "Thank you for letting us know"}
+            {replied === "yes" ? "Thank you, we can't wait!" : "Thank you for letting us know"}
           </h2>
           <p className="stagger-3 panel-rsvp-done-body">
             {replied === "yes"
-              ? `Your reply is in. We will see you at ${wedding.events[0].venue}, and then at ${wedding.events[1].venue} straight after.`
-              : "We will miss you on the day, but we are grateful you took the time to tell us. You will be in our thoughts."}
+              ? wedding.reveal.ceremonyVenue && wedding.reveal.gatheringVenue
+                ? `Your reply is in. We'll see you at ${wedding.events[0].venue}, then at ${wedding.events[1].venue} straight after.`
+                : wedding.reveal.ceremonyVenue
+                  ? `Your reply is in. We'll see you at ${wedding.events[0].venue}, and we'll send the rest of the details soon.`
+                  : "Your reply is in. We'll send you the where and when as soon as it is settled."
+              : "We'll miss you, but thank you for letting us know. You'll be in our thoughts."}
           </p>
           <p className="stagger-4 panel-rsvp-done-note">
             Need to change your reply? Call us on {wedding.rsvp.contactNumber}.
@@ -187,7 +191,7 @@ export function PanelRsvp({ active }: { active: boolean }) {
           <p className="stagger-1 panel-eyebrow is-onDark">RSVP</p>
           <h2 className="stagger-2 panel-title is-onDark">{wedding.rsvp.heading}</h2>
           <p className="stagger-3 panel-rsvp-deadline">
-            Kindly reply by{" "}
+            Please reply by{" "}
             <strong>{formatLongDate(wedding.rsvp.deadline)}</strong> so we can set the table.
           </p>
         </header>
@@ -230,8 +234,8 @@ export function PanelRsvp({ active }: { active: boolean }) {
             <Step question="Will you be joining us?">
               <div className="rsvp-choices">
                 <ChoiceCard
-                  title="Joyfully accepts"
-                  subtitle="I will be there"
+                  title="Yes, count me in"
+                  subtitle="I'll be there"
                   selected={values.attending === "yes"}
                   onSelect={() => {
                     set("attending", "yes");
@@ -239,8 +243,8 @@ export function PanelRsvp({ active }: { active: boolean }) {
                   }}
                 />
                 <ChoiceCard
-                  title="Regretfully declines"
-                  subtitle="I cannot make it"
+                  title="Sorry, I can't make it"
+                  subtitle="I'll be there in spirit"
                   selected={values.attending === "no"}
                   onSelect={() => {
                     set("attending", "no");
@@ -317,11 +321,11 @@ export function PanelRsvp({ active }: { active: boolean }) {
           ) : null}
 
           {step === 3 ? (
-            <Step question="Anything you would like us to know?" hint="Optional — a note, a song, a hello.">
+            <Step question="Anything you'd like us to know?" hint="Optional. A note, a song, or just a hello.">
               <textarea
                 ref={firstInputRef as React.Ref<HTMLTextAreaElement>}
                 rows={3}
-                placeholder="We are so happy for you both…"
+                placeholder="We're so happy for you both!"
                 value={values.message}
                 onChange={(event) => set("message", event.target.value)}
                 aria-label="A note for us, optional"

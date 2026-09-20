@@ -17,7 +17,7 @@ export const rsvpSchema = z
       .string({ error: "Please tell us your full name." })
       .trim()
       .min(2, "Please tell us your full name.")
-      .max(80, "That is longer than we can store — an abbreviation is fine."),
+      .max(80, "That's longer than we can store. A shorter version is fine."),
 
     mobile: z
       .string({ error: "Please leave a number we can reach you on." })
@@ -29,7 +29,7 @@ export const rsvpSchema = z
     /* Optional, but an empty string must pass — browsers submit "" for
        untouched optional inputs, which a bare email check would reject. */
     email: z
-      .union([z.literal(""), z.email("That email address does not look right.")])
+      .union([z.literal(""), z.email("That email doesn't look right.")])
       .optional(),
 
     attending: z.enum(["yes", "no"], {

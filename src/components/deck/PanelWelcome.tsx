@@ -5,7 +5,6 @@ import { wedding } from "@/config/wedding";
 import { dateParts } from "@/lib/date";
 import { Ornament } from "../Ornament";
 import { Envelope } from "./SceneObject";
-import { Tilt } from "../Tilt";
 import { WrittenNames } from "./WrittenNames";
 import { nameOutlines } from "./name-outlines.generated";
 
@@ -61,6 +60,12 @@ export function PanelWelcome({
           the picture behind it stays light; see the note in globals.css
           where the wash used to be defined. */}
       <div className="panel-welcome-photo" aria-hidden="true">
+        {/* A frame around the photograph, because `fill` writes
+            `height:100%;top:0` as INLINE styles and a stylesheet cannot
+            outrank those without `!important`. The cap that keeps the
+            rings on screen therefore lives on this div, which is mine,
+            and the image fills it. See globals.css. */}
+        <div className="panel-welcome-photo-frame">
         {/* quality 90, not the default 75. With no wash over it any more
             this photograph is seen at full strength, and webp at 75 leaves
             visible banding across a large near-white field like this one.
@@ -70,29 +75,48 @@ export function PanelWelcome({
           alt=""
           fill
           priority
-          quality={90}
+          /*
+            UNOPTIMIZED, WHICH IS RARE HERE AND DELIBERATE: the file is
+            served exactly as it sits on disk, every pixel of it.
+
+            The optimiser was doing two things to this photograph, and
+            both are reductions. It re-encoded to WebP at quality 90,
+            which is lossy; and `sizes="100vw"` makes it pick a width
+            from the device list, so a 1536px-wide source could be handed
+            back at 1200 on a phone. Neither is visible side by side, but
+            both are exactly what "do not reduce the resolution" rules
+            out.
+
+            WHAT IT COSTS: this is the LCP element and the PNG is 789KB,
+            where an optimised WebP would have been a fraction of that.
+            If load time ever matters more than the last pixel, the
+            middle ground is to drop `unoptimized` and set
+            `quality={100}` — full resolution, still re-encoded.
+
+            Same reasoning as the payment QR codes in PanelDetails, which
+            are unoptimized for the same "leave my pixels alone" reason.
+          */
+          unoptimized
           sizes="100vw"
           className="object-cover"
         />
+        </div>
       </div>
 
       <div className="panel-inner panel-welcome-body">
-        {/* The frosted card the copy sits on. A real element rather than a
-            pseudo-element on the panel: it has to be exactly as big as the
-            content, and only a wrapper knows that. It also takes over the
-            column layout from `.panel-inner`, which now does nothing but
-            place it.
+        {/* The copy sits straight on the photograph now. `.hero-glass` is
+            still here because it owns the column layout — the flex
+            direction, the gap and the padding that `.panel-inner` handed
+            to it — but it no longer draws anything: no frost, no veil, no
+            border, no shadow. See globals.css.
 
-            WRAPPED IN `Tilt`, the same component the dress-code, gallery
-            and gift cards use — the pane leans toward the cursor with a
-            highlight tracking it. Reused rather than rebuilt so the
-            invitation has ONE hover idiom, and so the gates that matter
-            (touch, reduced motion) are the ones already written.
-
-            The rotation lands on the WRAPPER, not on this card, which is
-            what keeps `backdrop-filter` intact — see globals.css. */}
-        <Tilt className="hero-tilt" max={4.5} lift={4}>
-          <div className="hero-glass">
+            THE `Tilt` WRAPPER WENT WITH THE GLASS. It existed to lean the
+            PANE toward the cursor, and its sheen and hover shadow are
+            drawn at the pane's own corners. With nothing left to draw,
+            both would have shown as a rectangle sliding about on top of
+            the photograph. The other three cards on this invitation keep
+            their tilt; this one has no card to tilt. */}
+        <div className="hero-glass">
           <p className="stagger-1 panel-eyebrow">{wedding.invitation.heading}</p>
 
         {/* No stagger on the h1 itself — the three lines inside it arrive
@@ -159,7 +183,9 @@ export function PanelWelcome({
             time. Blocks rather than a <br>, so the split survives the name
             wrapping and the time never ends up orphaned mid-line. */}
         <p className="stagger-7 panel-welcome-venue">
-          <span className="panel-welcome-venue-name">{ceremony.venue}</span>
+          <span className="panel-welcome-venue-name">
+            {wedding.reveal.ceremonyVenue ? ceremony.venue : wedding.detailsPlaceholder}
+          </span>
           {/*
             The hour, one character at a time.
 
@@ -174,6 +200,11 @@ export function PanelWelcome({
             NBSP for the space, because a plain space between two
             inline-blocks collapses and "11:00AM" is not the time.
           */}
+          {/* The hour goes with the venue: see wedding.ts. The whole block
+              is dropped rather than replaced, because the name above has
+              already said "To be announced" and saying it twice reads as
+              a fault. */}
+          {wedding.reveal.times ? (
           <span className="panel-welcome-venue-time">
             <span className="sr-only">{ceremony.time}</span>
             <span aria-hidden="true">
@@ -188,6 +219,7 @@ export function PanelWelcome({
               ))}
             </span>
           </span>
+          ) : null}
         </p>
 
         <p className="stagger-8 panel-welcome-note">{wedding.invitation.body[0]}</p>
@@ -196,7 +228,7 @@ export function PanelWelcome({
             <Envelope onClick={onAdvance} initials={initials} />
             </div>
           </div>
-        </Tilt>
+
       </div>
     </div>
   );

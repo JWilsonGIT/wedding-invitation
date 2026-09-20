@@ -14,7 +14,7 @@ export function TheDay() {
 
       <p className="mx-auto mt-6 max-w-xl text-center text-base leading-relaxed text-ink-600">
         Two places, one afternoon. The ceremony at the church, then a meal
-        together — that is the whole of it.
+        together. That is the whole of it.
       </p>
 
       {/* One card component, two config entries. A third stop would need

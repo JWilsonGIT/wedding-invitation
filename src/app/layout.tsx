@@ -66,8 +66,27 @@ const storyScript = Story_Script({
   display: "swap",
 });
 
-const title = `${wedding.couple.shortNames} — ${formatLongDate(wedding.date)}`;
-const description = `Please join us for our wedding ceremony at ${wedding.events[0].venue}, followed by a meal together at ${wedding.events[1].venue}. Kindly RSVP.`;
+const title = `${wedding.couple.shortNames}, ${formatLongDate(wedding.date)}`;
+/*
+  THE MOST IMPORTANT PLACE THE VENUES HAD TO LEAVE.
+
+  This one string feeds `description`, the Open Graph card and the Twitter
+  card below, which is the text Messenger, Viber and iMessage show when
+  someone pastes the link — and pasting the link is how this invitation
+  actually travels. Venue names hidden on the page but left in here would
+  be hidden from nobody. `robots: index: false` keeps it out of search
+  results and does nothing at all about a shared link.
+*/
+const description = (() => {
+  const [ceremony, gathering] = wedding.events;
+  if (wedding.reveal.ceremonyVenue && wedding.reveal.gatheringVenue) {
+    return `Please join us for our wedding ceremony at ${ceremony.venue}, followed by a meal together at ${gathering.venue}. Kindly RSVP.`;
+  }
+  if (wedding.reveal.ceremonyVenue) {
+    return `Please join us for our wedding ceremony at ${ceremony.venue}. The rest of the details are still to be announced. Kindly RSVP.`;
+  }
+  return "We're getting married, and we'd love you there. The where and when are still to be announced. Please let us know if you can make it.";
+})();
 
 export const metadata: Metadata = {
   metadataBase: siteUrl(),

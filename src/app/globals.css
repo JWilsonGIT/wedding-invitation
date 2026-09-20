@@ -1866,29 +1866,78 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
+  /*
+    The photograph's own top edge, sampled: rgb(248,249,249), and flat
+    across the full width (246..251 brightness). On a tall phone the
+    picture is capped below (see the next rule) and this fills what it no
+    longer reaches. Because the source really is that uniform up there,
+    the join does not read as a join.
+  */
+  background-color: #f8f9f9;
+}
+
+/*
+  KEEPING THE RINGS ON SCREEN ON A PHONE, which object-position alone
+  cannot do.
+
+  `object-cover` scales by whichever axis needs more, and on a tall phone
+  that is the HEIGHT. The taller the screen, the larger the picture is
+  drawn, and the rings grow with it until they are wider than the phone.
+  Sliding the crop sideways cannot help: the subject is simply bigger than
+  the window.
+
+  MEASURED AT 51% WITH NO CAP: 375x812 cleared by 1px on the right,
+  390x844 by 1px, and 360x800 — an ordinary Android size — clipped the
+  bands on BOTH sides. Everything else was one browser toolbar away from
+  doing the same.
+
+  So the picture is capped instead. The rings are 395px of a 1536px-wide
+  source, so at a drawn height H they measure 395 x H/864. Holding them at
+  85% of the viewport width gives H <= 1.859 x width, which is where
+  186vw comes from. `min()` means the cap only ever bites on a screen
+  tall enough to need it — a short phone still fills the panel, because
+  there the rings already fit.
+*/
+.panel-welcome-photo-frame {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: min(100%, 186vw);
 }
 
 /*
   WHICH PART OF THE HERO SURVIVES THE CROP.
 
-  The photograph is 3:2 landscape with the rings gathered in its lower
-  right and the left half very nearly empty. `object-cover` centres its
-  crop, so on a phone — a tall box against a wide picture — the visible
-  slice was the source's middle 34.6%..65.4%: most of the empty left side,
-  and the rings cut off past the edge. Guests open this on a phone, so
-  that was the common case, not the edge case.
+  `object-cover` centres its crop, so on a phone — a tall box against a
+  wide picture — the visible slice is a narrow vertical band through the
+  middle of the source. Whether the rings are inside that band is the
+  whole question, and guests open this on a phone, so it is the common
+  case rather than the edge case.
 
-  68% moves the window to 47.1%..77.8%, which centres it on the solitaire
-  and keeps the group of rings in frame.
+  MEASURED ON THE ACTUAL FILE. Scanning hero2.png for strongly gold
+  pixels puts the two bands at x 584..978 of 1536 — 395px wide, centred
+  on 50.85%.
+
+  51% IS THAT CENTRE, not a nudge. As the crop gets tighter the required
+  value converges on the subject's own centre fraction, so one number
+  holds across phone sizes.
+
+  IT REPLACED 68%, WHICH WAS CORRECT FOR THE OLD PHOTOGRAPH AND IS A BUG
+  AGAINST THIS ONE. hero.png was 3:2 with the rings gathered in its lower
+  RIGHT, so the window had to be pushed right to reach them. hero2.png is
+  16:9 with the rings in the middle, and 68% pushed the window straight
+  past them: at 375x812 it clipped the right-hand band by 10px. A value
+  tuned to one photograph does not survive the next one — if the hero
+  changes again, re-measure rather than nudge.
 
   IT DOES NOTHING ON A DESKTOP, and that is expected rather than a bug: a
   wide viewport against a wide picture crops vertically, not
   horizontally, so there is no horizontal slack for this value to move
-  within. Measured at 1280x800 the crop is 3.1%..96.9% of the height and
-  the full width regardless of what this says.
+  within.
 */
 .panel-welcome-photo img {
-  object-position: 68% 50%;
+  object-position: 51% 50%;
 }
 
 /*
@@ -2403,7 +2452,10 @@ body {
   flex: 0 1 auto;
   align-items: center;
   justify-content: center;
-  padding: 1rem 0;
+  /* Was 1rem. Every pixel here is a pixel the collage cannot have, and on
+     this panel the collage IS the content — there is nothing above or
+     below it inside the stage for the padding to separate it from. */
+  padding: 0.25rem 0;
 }
 
 /*
@@ -2423,14 +2475,40 @@ body {
      Width comes from that height budget times the stage's own aspect, so
      the pile is always as large as the panel can afford and never a pixel
      larger. */
-  --stage-h: max(9rem, calc(100dvh - 23rem));
+  /*
+     MEASURED ON THE SHORT PHONE, not the tall one. At 375x812 anything
+     from 21rem up looks fine, because there the collage is capped by the
+     panel's WIDTH and never reaches its height allowance. At 375x667 the
+     height is what binds, and 21rem put the collage 1px over the heading
+     and 4px into the foot. 22.5rem clears both by 11px and 9px.
+  */
+  --stage-h: max(9rem, calc(100dvh - 22.5rem));
   width: min(100%, calc(var(--stage-h) * 0.75));
-  max-width: 26rem;
+  max-width: 30rem;
+}
+
+/*
+  A TIGHTER LADDER ON THIS PANEL ONLY. The shared `.panel-inner` gap is
+  sized for panels whose body is a block of text that needs air around it.
+  Here the body is one photographic object that wants to be as large as
+  the screen allows, and each gap costs the collage 2.5x its own height in
+  WIDTH, because the grid is 2.5:1 and height-bound. Halving the gap is
+  worth about 70px of collage width.
+*/
+.panel-photos .panel-inner {
+  gap: clamp(0.4rem, 1vh, 0.7rem);
 }
 
 @media (width >= 48rem) {
   .panel-photos .prints {
-    --stage-h: max(9rem, calc(100dvh - 27rem));
+    /*
+       MEASURED, not chosen. At 1440x900 the clearance above and below the
+       collage against this subtrahend is 13px and 11px; at 27rem it is
+       5px and 2px, and at 26.5rem the collage starts overlapping the
+       heading. The panel centres its content, so an over-large collage
+       does not push the heading off the top, it grows underneath it.
+    */
+    --stage-h: max(9rem, calc(100dvh - 28rem));
     /*
       The multiplier is the grid's own aspect, so width tracks the height
       budget. `max-width` is the real cap in practice: at 1440x900 the
@@ -2444,7 +2522,18 @@ body {
       the heading.
     */
     width: min(100%, calc(var(--stage-h) * 2.5));
-    max-width: 62rem;
+    /*
+       Raised from 62rem, which had quietly become the real constraint: at
+       1440x900 the height budget permitted 1170px of width and this
+       admitted 992, so the collage was leaving a third of its own
+       allowance unspent.
+
+       104rem is high enough that it never binds on any screen measured
+       (at 1920x1080 the height budget tops out at 1580px of width, and
+       this admits 1664), which hands control back to the height the way
+       the note above intends. It stays as a backstop rather than a size.
+    */
+    max-width: 104rem;
   }
 }
 
@@ -2616,11 +2705,130 @@ body {
   gap: 0.85rem;
 }
 
+/*
+  THE STACK. Stepping through the photographs deals the top card away and
+  brings the next one up off the pile, rather than cross-fading one
+  picture into another.
+
+  `.lightbox-deck` is the thing that makes it work: it is sized by the
+  CURRENT card (the only one in normal flow), and everything else in here
+  is absolutely positioned against it. So the pile edges and the outgoing
+  card always match the photograph on top, including when a portrait
+  print is followed by a landscape one and the box changes shape.
+*/
+.lightbox-deck {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-card {
+  position: relative;
+  display: block;
+  border-radius: 2px;
+  /* No white mount. The photograph is the card, and the shadow is what
+     gives it an edge against the scrim now that nothing else does. */
+  box-shadow: 0 10px 30px -8px rgb(0 0 0 / 0.55);
+}
+
+.lightbox-card.is-current {
+  animation: lightbox-card-in 420ms var(--ease-morph) backwards;
+}
+
+/* Out of flow, so it cannot push the deck around on its way off, and
+   above the pile but below nothing — it is the card being removed. */
+.lightbox-card.is-leaving {
+  position: absolute;
+  z-index: 2;
+  animation: lightbox-card-out 380ms var(--ease-exit) forwards;
+  pointer-events: none;
+}
+
+/* The two edges of pile behind the top card. */
+.lightbox-under {
+  position: absolute;
+  inset: 0;
+  display: block;
+  border-radius: 2px;
+  background-color: color-mix(in srgb, white 82%, var(--color-blush-200));
+  box-shadow: 0 8px 22px -10px rgb(0 0 0 / 0.5);
+}
+
+.lightbox-under.is-one {
+  rotate: -2.2deg;
+  translate: -6px 5px;
+}
+
+.lightbox-under.is-two {
+  rotate: 3deg;
+  translate: 7px 9px;
+  background-color: color-mix(in srgb, white 66%, var(--color-blush-200));
+}
+
+/*
+  The next print does not slide in from the side — it comes UP OFF THE
+  PILE. It starts small, low and turned a couple of degrees the way the
+  cards beneath it are turned, then settles square on top. Entering from
+  the side would read as a carousel, which is the thing this replaces.
+
+  `--from-rot` is set per step so the card rises tilted the opposite way
+  depending on which direction you are going, and the deck does not
+  appear to rotate the same way forever.
+*/
+@keyframes lightbox-card-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(0.93) rotate(var(--from-rot, -2.4deg));
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+}
+
+/* And the old one is dealt off the top, in the direction you came from. */
+@keyframes lightbox-card-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(var(--exit-x, -62%), -22px, 0) scale(0.9)
+      rotate(var(--exit-rot, -11deg));
+  }
+}
+
+/*
+  The stack is motion, not information: with it cancelled the new
+  photograph is simply there. The step handler has the matching
+  matchMedia gate, because the outgoing card is mounted by a TIMER and no
+  stylesheet can unmount it — without that gate it would sit on top of
+  the new photograph for 380ms with nothing moving.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .lightbox-card.is-current,
+  .lightbox-card.is-leaving {
+    animation: none;
+  }
+
+  .lightbox-under {
+    display: none;
+  }
+}
+
 .lightbox-image {
+  display: block;
   max-height: 74dvh;
   width: auto;
   max-width: 100%;
   object-fit: contain;
+}
+
+.lightbox-card.is-leaving .lightbox-image {
+  height: 100%;
+  width: 100%;
 }
 
 .lightbox-count {
@@ -2775,7 +2983,7 @@ body {
   align-content: center;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   /* Equal rows, so the 2x2 reads as four matching doors. Without this the
-     row holding "[Right after the ceremony]" grows to fit two lines of
+     row holding "Right after the ceremony" grows to fit two lines of
      meta and the grid comes out visibly lopsided. Capped, or on a tall
      desktop screen the arches stretch into columns. */
   grid-auto-rows: minmax(0, 1fr);
@@ -3337,6 +3545,45 @@ body {
 }
 
 /* gifts */
+/*
+  A PRESSABLE CARD, and the affordance is the problem it has to solve.
+
+  There is nothing on the card that says "press me": no chevron, no
+  caption, and no room for one — the four cards only just clear the sheet
+  without scrolling at 1280x860, so a line of hint text would put the
+  scrollbar straight back. The affordance is therefore the hover itself,
+  which is the same lift every other card on this invitation uses, plus a
+  pointer. On touch, where hover does not exist, the code being visible on
+  the card is what invites the tap.
+
+  `width: 100%` and the font reset are the usual cost of a button being a
+  layout box: a button does not stretch to its grid cell on its own, and
+  it does not inherit the page's font.
+*/
+.gift-card.is-pressable {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 200ms var(--ease-gentle),
+    box-shadow 200ms var(--ease-gentle),
+    translate 200ms var(--ease-gentle);
+}
+
+.gift-card.is-pressable:hover,
+.gift-card.is-pressable:focus-visible {
+  translate: 0 -3px;
+  border-color: var(--color-rose-300);
+  box-shadow: 0 8px 20px -12px color-mix(in srgb, var(--color-ink-900) 40%, transparent);
+}
+
+/* The number is the one thing on the card a guest may want to select and
+   copy, and a button suppresses selection by default. */
+.gift-card.is-pressable .gift-number {
+  user-select: text;
+}
+
 .gift-card {
   display: flex;
   flex-direction: column;
@@ -3431,10 +3678,17 @@ body {
   color: var(--color-ink-900);
 }
 
-.gift-account {
+/* Sized in CSS, not by the `width`/`height` on the Image, so the code can
+   shrink with a narrow card. 6.5rem is the largest that leaves all four
+   methods visible in the sheet without scrolling on a 1280x860 desktop,
+   and at roughly 2.7cm on screen it is still a comfortable scan; the file
+   behind it is 545-818px square, so it stays sharp at any density. */
+.gift-qr {
   margin-top: 0.7rem;
-  font-size: 0.82rem;
-  color: var(--color-ink-600);
+  width: min(100%, 6.5rem);
+  height: auto;
+  border: 1px solid var(--color-blush-200);
+  border-radius: 0.375rem;
 }
 
 .gift-number {
@@ -3442,6 +3696,70 @@ body {
   font-size: 0.82rem;
   letter-spacing: 0.04em;
   color: var(--color-ink-400);
+}
+
+/*
+  THE ENLARGED CODE.
+
+  Stacked at z-70, one above the sheet it opens from, so the sheet stays
+  visible and blurred behind it rather than being torn down and rebuilt
+  when the code closes.
+
+  The size is bounded on THREE axes, not two. `min()` takes whichever of
+  the viewport's width, the viewport's height, or a fixed ceiling is
+  smallest, because a phone held in landscape has plenty of the first and
+  almost none of the second — and a code that overflows the bottom of
+  the screen is one a guest cannot point a camera at.
+*/
+.qr-zoom {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: color-mix(in srgb, var(--color-ink-900) 80%, transparent);
+  backdrop-filter: blur(5px);
+  animation: lightbox-in 200ms var(--ease-gentle) both;
+}
+
+.qr-zoom-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(92vw, 26rem);
+  border: 1px solid var(--color-blush-200);
+  border-radius: 0.9rem;
+  background-color: white;
+  padding: clamp(1.5rem, 5vw, 2.2rem);
+  text-align: center;
+  animation: lightbox-photo-in 380ms var(--ease-morph) backwards;
+}
+
+.qr-zoom-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  color: var(--color-ink-900);
+}
+
+.qr-zoom-image {
+  margin-top: 1rem;
+  width: min(74vw, 56dvh, 20rem);
+  height: auto;
+  border: 1px solid var(--color-blush-200);
+  border-radius: 0.5rem;
+}
+
+.qr-zoom-number {
+  margin-top: 1rem;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-600);
+  /* The number under a code a guest has just enlarged is the fallback for
+     when the scan will not take, so it has to be copyable. */
+  user-select: text;
 }
 
 /* ═══ PANEL IV — WHERE (warm gray) ═══════════════════════════════
@@ -3697,6 +4015,18 @@ body {
 .where-detail {
   margin-top: 1rem;
   text-align: center;
+}
+
+/* Names the event when the switcher is hidden, because with only one
+   venue public there is no tab left saying which one this is. Uses the
+   eyebrow idiom already on this panel rather than inventing a fifth
+   label style. */
+.where-single-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, white 78%, transparent);
 }
 
 .where-venue {
@@ -6313,13 +6643,32 @@ FIVE STOPS, NOT TWO — a pink ramp used end to end, so the sweep is the
   it, and it keeps the centred layout, which is the better of the two bad
   options on any portrait screen.
   ═══════════════════════════════════════════════════════════════════ */
-@media (width >= 48rem) and (min-aspect-ratio: 3 / 2) {
-  .panel-welcome .panel-inner {
-    /* 50%, up from 48%, to pay for the card's wider side padding — see the
-       note on `.hero-glass`. The two move together. */
-    padding-right: 50%;
-  }
-}
+/*
+  THE RESERVE IS GONE and the card is centred again.
+
+  It reserved the right half of the panel so the copy could not sit on the
+  rings — correct for the old hero, whose rings were off to the right, and
+  measured against that photograph: "the first column containing any ring
+  or petal is x=641 of 1280".
+
+  hero2.png does not have that shape. Its rings are centred along the
+  BOTTOM, so there is no clear half to move into and nothing to move away
+  from; all the reserve did was push the card 344px left of centre at
+  1440x900 for no benefit. The subject sits below the copy now, not beside
+  it, so the panel centres.
+
+  KEPT AS A COMMENT RATHER THAN DELETED because it is the thing to restore
+  if the hero ever goes back to a photograph with its subject on one side:
+
+      @media (width >= 48rem) and (min-aspect-ratio: 3 / 2) {
+        .panel-welcome .panel-inner { padding-right: 50%; }
+      }
+
+  The aspect condition is the load-bearing half of it: a clear half exists
+  only when the panel is WIDER than the photograph's own aspect, because
+  that is exactly when object-cover crops by width and shows the whole
+  frame across. Gated on width alone it was wrong at 768x1024.
+*/
 
 
 /*
@@ -6387,39 +6736,26 @@ FIVE STOPS, NOT TWO — a pink ramp used end to end, so the sweep is the
     horizontal is paid for out of the gap to the rings.
   */
   padding: clamp(0.95rem, 2.4vh, 2rem) clamp(1.4rem, 4vw, 3.5rem);
-  /* Shared with `.hero-tilt` below, which needs the SAME corners or its
-     hover shadow shows as a rectangle poking out behind the pane. */
-  border-radius: var(--glass-radius);
+  /*
+    THE GLASS IS GONE. What stood here was the veil, an 18px
+    `backdrop-filter`, a lit top edge and a drop shadow — the copy now sits
+    straight on the photograph instead, and this element survives only as
+    the column that holds it: the flex direction, the gap and the padding
+    above.
 
-  /* The veil. Warm rather than pure white — a neutral frost over blush
-     cloth goes grey, the same reason the scene objects' shadow is plum. */
-  background: color-mix(in srgb, #fff7f9 30%, transparent);
-  /* NO -webkit- TWIN. Writing both made Lightning CSS (Tailwind 4's
-     transformer) collapse the pair and ship only the prefixed one, which
-     current Chrome no longer supports — CSS.supports('-webkit-backdrop-
-     filter', ...) is false — so the card rendered with no frost at all.
-     The unprefixed property alone is correct for every browser this site
-     targets, and the @supports block below covers anything older. */
-  backdrop-filter: saturate(1.3) blur(18px);
+    THAT MAKES THE PHOTOGRAPH THE ONLY THING BETWEEN THE TYPE AND THE EYE,
+    which is the warning already written against `.panel-welcome-photo`:
+    legibility on this panel is a property of whatever `heroImage` points
+    at and nothing else. It holds for hero2.png, whose upper half is
+    near-white where the names and the date sit — measured, not assumed.
+    A DARK or BUSY photograph breaks the whole panel at once, and the fix
+    then is to bring a veil back HERE rather than to recolour the type,
+    which is shared with the other four panels.
 
-  /* A lit top edge and a soft drop: what separates a pane of glass from a
-     translucent rectangle. */
-  border: 1px solid color-mix(in srgb, #fff 55%, transparent);
-  box-shadow:
-    inset 0 1px 0 color-mix(in srgb, #fff 65%, transparent),
-    0 24px 60px -30px rgb(107 60 78 / 0.45);
-}
-
-/*
-  NO BACKDROP-FILTER, NO GLASS — and the card must not become a pale
-  rectangle with nothing behind it. Where the property is unsupported the
-  veil is made considerably more opaque, so it still reads as a surface
-  the copy sits on rather than as a wash that has failed to blur.
-*/
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .hero-glass {
-    background: color-mix(in srgb, #fff7f9 72%, transparent);
-  }
+    The `@supports not (backdrop-filter)` fallback went too. It existed to
+    thicken the veil where the blur was unsupported, and there is no
+    longer a veil to thicken.
+  */
 }
 
 

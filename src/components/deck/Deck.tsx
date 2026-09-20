@@ -7,6 +7,7 @@ import { PanelDetails } from "./PanelDetails";
 import { PanelWhere } from "./PanelWhere";
 import { PanelRsvp } from "./PanelRsvp";
 import { DeckNav } from "./DeckNav";
+import { wedding, anyVenuePublic } from "@/config/wedding";
 
 /*
   ═══════════════════════════════════════════════════════════════════
@@ -43,13 +44,37 @@ import { DeckNav } from "./DeckNav";
       slideshow a guest has to sit through.
   ═══════════════════════════════════════════════════════════════════ */
 
-export const PANELS = [
-  { id: "welcome", numeral: "I", label: "Welcome" },
-  { id: "photos", numeral: "II", label: "Photographs" },
-  { id: "details", numeral: "III", label: "The Day" },
-  { id: "where", numeral: "IV", label: "Where" },
-  { id: "rsvp", numeral: "V", label: "Reply" },
+const ALL_PANELS = [
+  { id: "welcome", label: "Welcome" },
+  { id: "photos", label: "Photographs" },
+  { id: "details", label: "The Day" },
+  { id: "where", label: "Where" },
+  { id: "rsvp", label: "Reply" },
 ] as const;
+
+const NUMERALS = ["I", "II", "III", "IV", "V"] as const;
+
+/*
+  THE DECK IS DERIVED, NOT LISTED, and that is what makes hiding a panel a
+  one-word change rather than a careful edit.
+
+  Where is nothing but venue names, addresses and a live map, so it is in
+  the deck only while at least one venue is public, and comes out of the
+  sequence entirely when none is. See the note at the top of wedding.ts.
+
+  The numeral now comes from the POSITION rather than being stored on each
+  entry. Deleting an entry by hand would otherwise leave Reply labelled "V"
+  while sitting fourth — which is the kind of thing that reads as a bug in
+  the deck rather than as a missing panel.
+*/
+export const PANELS = ALL_PANELS.filter(
+  (p) => p.id !== "where" || anyVenuePublic,
+).map((p, i) => ({ ...p, numeral: NUMERALS[i] }));
+
+/* Advancing by NAME, never by number. `go(3)` was correct only while the
+   deck had exactly five panels in exactly one order. */
+const panelIndex = (id: (typeof ALL_PANELS)[number]["id"]) =>
+  PANELS.findIndex((p) => p.id === id);
 
 const indexFromHash = (hash: string) => {
   const found = PANELS.findIndex((p) => p.id === hash.replace(/^#/, ""));
@@ -175,13 +200,45 @@ export function Deck() {
     return () => window.removeEventListener("keydown", onKey);
   }, [index, go]);
 
-  const panels = [
-    <PanelWelcome key="welcome" onAdvance={() => go(1)} active={index === 0} />,
-    <PanelPhotos key="photos" onAdvance={() => go(2)} active={index === 1} />,
-    <PanelDetails key="details" onAdvance={() => go(3)} active={index === 2} />,
-    <PanelWhere key="where" onAdvance={() => go(4)} active={index === 3} />,
-    <PanelRsvp key="rsvp" active={index === 4} />,
-  ];
+  /* Built in the same order as PANELS, and from the same filter, so the
+     two cannot drift apart. */
+  const byId: Record<string, React.ReactNode> = {
+    welcome: (
+      <PanelWelcome
+        key="welcome"
+        onAdvance={() => go(panelIndex("photos"))}
+        active={index === panelIndex("welcome")}
+      />
+    ),
+    photos: (
+      <PanelPhotos
+        key="photos"
+        onAdvance={() => go(panelIndex("details"))}
+        active={index === panelIndex("photos")}
+      />
+    ),
+    details: (
+      <PanelDetails
+        key="details"
+        /* With Where hidden this lands on Reply instead, which is the
+           next panel either way. */
+        onAdvance={() =>
+          go(anyVenuePublic ? panelIndex("where") : panelIndex("rsvp"))
+        }
+        active={index === panelIndex("details")}
+      />
+    ),
+    where: (
+      <PanelWhere
+        key="where"
+        onAdvance={() => go(panelIndex("rsvp"))}
+        active={index === panelIndex("where")}
+      />
+    ),
+    rsvp: <PanelRsvp key="rsvp" active={index === panelIndex("rsvp")} />,
+  };
+
+  const panels = PANELS.map((p) => byId[p.id]);
 
   return (
     <div className="deck">
@@ -196,7 +253,7 @@ export function Deck() {
               panelRefs.current[i] = node;
             }}
             tabIndex={-1}
-            aria-label={`${panel.label} — panel ${i + 1} of ${PANELS.length}`}
+            aria-label={`${panel.label}, panel ${i + 1} of ${PANELS.length}`}
             /* inert, not just hidden: an off-screen panel must not be
                tabbable, searchable, or readable by a screen reader. */
             inert={i !== index}

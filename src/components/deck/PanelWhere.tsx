@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { wedding, type WeddingEvent } from "@/config/wedding";
+import { wedding, venueIsPublic, type WeddingEvent } from "@/config/wedding";
 import { MapEmbed } from "../MapEmbed";
 import { Chair } from "./SceneObject";
 
@@ -38,7 +38,18 @@ export function PanelWhere({
     on the original ground, and neither half can be left behind.
   */
   const onPhoto = Boolean(wedding.whereImage);
-  const venues: readonly WeddingEvent[] = wedding.events;
+  /*
+    ONLY THE VENUES THAT ARE PUBLIC. A place that is still withheld must
+    not appear here at all: not as a tab, not as an address, and above
+    all not as a map, because the embed would disclose it to Google even
+    with the words off the screen.
+
+    The deck drops this panel entirely when the list would be empty —
+    see Deck.tsx — so there is always at least one here.
+  */
+  const venues: readonly WeddingEvent[] = wedding.events.filter((e) =>
+    venueIsPublic(e.id),
+  );
   const venue = venues[which] ?? venues[0];
 
   return (
@@ -80,7 +91,12 @@ export function PanelWhere({
             own parent had finished arriving. */}
         <div className="where-card">
           {/* A bare two-column grid with no box of its own, so the stagger
-              sits on the buttons instead and they arrive in turn. */}
+              sits on the buttons instead and they arrive in turn.
+
+              HIDDEN WHEN THERE IS ONLY ONE PLACE TO SHOW. A switcher with
+              a single permanently-pressed tab reads as a broken control,
+              and it offers a choice that does not exist. */}
+          {venues.length > 1 ? (
           <div className="where-switch" role="group" aria-label="Choose a place">
             {venues.map((v, i) => (
               <button
@@ -91,10 +107,13 @@ export function PanelWhere({
                 className={`stagger-${i + 3} where-tab ${which === i ? "is-on" : ""}`}
               >
                 <span className="where-tab-label">{v.label}</span>
-                <span className="where-tab-time">{v.time}</span>
+                {wedding.reveal.times ? (
+                  <span className="where-tab-time">{v.time}</span>
+                ) : null}
               </button>
             ))}
           </div>
+          ) : null}
 
           {/*
             aria-live, because the switch changes content elsewhere on the
@@ -105,6 +124,11 @@ export function PanelWhere({
             {/* Its own box, so a wide-but-short screen can set the words
                 beside the map instead of stacking them above it. */}
             <div className="where-text">
+              {/* With the switcher gone, this is the only thing naming the
+                  event, and "Where" alone does not say which one. */}
+              {venues.length > 1 ? null : (
+                <p className="stagger-4 where-single-label">{venue.label}</p>
+              )}
               <h3 className="stagger-5 where-venue">{venue.venue}</h3>
               {venue.venueMeta ? <p className="stagger-6 where-meta">{venue.venueMeta}</p> : null}
               <p className="stagger-7 where-address">{venue.address}</p>

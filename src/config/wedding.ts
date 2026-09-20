@@ -51,6 +51,57 @@ export type WeddingEvent = {
 };
 
 export const wedding = {
+  /* ── WHAT GUESTS ARE ALLOWED TO SEE YET ──────────────────────
+     Three switches, because the details did not become public all at
+     once. Everything below is untouched whatever these say — this is
+     what is SHOWN, never what exists.
+
+     Today: the church is public, Perlie's Garden is not, and neither
+     time is.
+
+     WHAT EACH ONE REACHES, so nothing is missed on the way back:
+
+       ceremonyVenue   Panel I's venue line; the church's sheet on
+                       Panel III (name, diocese, address) and that
+                       sheet's "Maps and directions" button; the
+                       ceremony's map on Panel IV
+       gatheringVenue  the same for Perlie's Garden
+       times           Panel I's animated hour, both door metas on
+                       Panel III, the time inside each sheet, and the
+                       second line of each tab on Panel IV
+
+     PANEL IV EXISTS ONLY IF A VENUE DOES. It is maps and addresses and
+     nothing else, so with both venues hidden it is dropped from the
+     deck entirely and the numerals renumber. It shows only the venues
+     that are public, and hides its own switcher when that is just one,
+     because a one-tab switcher reads as a broken control.
+
+     THE LINK PREVIEW FOLLOWS THESE TOO. src/app/layout.tsx builds the
+     Open Graph description from whichever venues are public, because
+     that is the text Messenger and Viber show when the invitation is
+     pasted — a venue left in there is hidden from nobody.
+
+     A MAP DISCLOSES THE VENUE TO GOOGLE whether or not the text is on
+     screen, which is why the embed is gated on the same flag as the
+     words rather than left running.
+
+     NOT THE USUAL PATTERN IN THIS FILE, deliberately. Everything else
+     optional here switches on the data being ABSENT — `qr: undefined`,
+     `pleaseAvoid: []`, `Set to "" to hide it`. That works by deleting
+     the value, and the whole point here is to keep it. Named flags are
+     the honest shape for "present, withheld"; please do not tidy them
+     into the absence pattern. */
+  reveal: {
+    /** The church: name, Diocese of Antipolo, address, and its map. */
+    ceremonyVenue: true,
+    /** Perlie's Garden: name and address. */
+    gatheringVenue: false,
+    /** Both events' times, together. */
+    times: false,
+  },
+  /** Stands in wherever a withheld detail used to be. */
+  detailsPlaceholder: "To be announced",
+
   /* ── The couple ──────────────────────────────────────────── */
   couple: {
     /** Shown first, before the ampersand. */
@@ -66,7 +117,7 @@ export const wedding = {
   date: "2026-12-11",
 
   /* ── The day, in order ───────────────────────────────────────
-     Two entries: the church, then Max's. The same card component
+     Two entries: the church, then Perlie's. The same card component
      renders both, so adding a third event needs no new code. */
   events: [
     {
@@ -83,19 +134,21 @@ export const wedding = {
       mapsQuery:
         "Diocesan Shrine and Parish of Saint Clement - Poblacion Ibaba, Angono, Rizal (Diocese of Antipolo)",
       coords: "14.5235697,121.1497727",
-      note: "Please be seated fifteen minutes before the ceremony begins.",
+      note: "Please try to be seated about fifteen minutes before we start.",
     },
     {
       id: "gathering",
       label: "The Gathering",
-      venue: "Max's Restaurant — Binangonan",
-      time: "[Right after the ceremony]",
-      address: "Manila East Rd, Brgy. Pag-asa, Binangonan, Rizal",
-      mapsQuery: "Max's Restaurant Manila East Road, Pag-asa, Binangonan, Rizal, Philippines",
-      /* Verified: this query resolves to the single place "Max's Binangonan",
-         about 900m from the church — roughly a five-minute drive. */
-      coords: "14.5253098,121.158075",
-      note: "A relaxed lunch together — no program, no speeches. Come hungry.",
+      venue: "Perlie's Garden",
+      time: "Right after the ceremony",
+      address: "Eastridge Ave, Angono, Rizal",
+      mapsQuery: "Perlie's Garden Restaurant, Eastridge Ave, Angono, Rizal, Philippines",
+      /* About 2.5km from the church — a short drive east, up into
+         Eastridge. Single-sourced, unlike the church's coordinates: only
+         one listing publishes them, so they are worth a look on Maps
+         before this goes out. Waze falls back to `mapsQuery` if removed. */
+      coords: "14.5302192,121.1717403",
+      note: "Just a relaxed lunch together. No speeches, so come hungry.",
     },
   ] satisfies WeddingEvent[],
 
@@ -104,8 +157,8 @@ export const wedding = {
   invitation: {
     heading: "Together with our families",
     body: [
-      "We are getting married, and we would love for you to be there.",
-      "The day is a simple one: a ceremony at the church, then a meal together at Max's. No program, no long afternoon — just the people we love in one room.",
+      "We're getting married, and we'd really love for you to be there.",
+      "It's a simple day: a ceremony at the church, then lunch together at Perlie's Garden. No long program, just the people we love in one room.",
     ],
   },
 
@@ -116,11 +169,14 @@ export const wedding = {
      real colour; `name` is what guests read. */
   dressCode: {
     heading: "What to Wear",
-    intro: "Semi-formal — the ladies in soft pinks, the gentlemen in khaki.",
+    intro: "Semi-formal, please. Soft pinks for the ladies, Khaki for the gentlemen.",
     parties: [
       {
         who: "Ladies",
-        attire: "Long dress or cocktail dress.",
+        /* One line under the heading saying what to wear. Set to "" and
+           the line disappears, leaving the card as its heading and its
+           swatches. Was "Long dress or cocktail dress." */
+        attire: "",
         /*
           Which colourway this card is tinted with — "rose" or "khaki".
 
@@ -144,7 +200,8 @@ export const wedding = {
       },
       {
         who: "Gentlemen",
-        attire: "Barong, or coat and tie.",
+        /* Set to "" to hide, as above. Was "Barong, or coat and tie." */
+        attire: "",
         tint: "khaki",
         /*
           KHAKI, AND THE THREE VALUES ARE NOT ARBITRARY. They replace a
@@ -190,41 +247,52 @@ export const wedding = {
       src: "/images/gallery.png",
       alt: "",
     },
-    images: [
-      { src: "/images/gallery/placeholder-1.jpg", alt: "[Describe this photo]", width: 1200, height: 1500 },
-      { src: "/images/gallery/placeholder-2.jpg", alt: "[Describe this photo]", width: 1400, height: 1050 },
-      { src: "/images/gallery/placeholder-3.jpg", alt: "[Describe this photo]", width: 1400, height: 1050 },
-      { src: "/images/gallery/placeholder-4.jpg", alt: "[Describe this photo]", width: 1200, height: 1500 },
-      { src: "/images/gallery/placeholder-5.jpg", alt: "[Describe this photo]", width: 1400, height: 1050 },
-      { src: "/images/gallery/placeholder-6.jpg", alt: "[Describe this photo]", width: 1400, height: 1050 },
-      /* Plain tinted stand-ins, so the pile can be seen at full density
-         before the real photographs arrive. Swap the src for your own and
-         write a real alt — the gallery takes any number from 6 to 18.
+    /*
+      THE REAL PHOTOGRAPHS, in the order they were taken, so the set reads
+      as the day it was: messing about in the park, then the garden, then
+      the proposal after dark at the end.
 
-         EIGHTEEN IS A HARD CEILING, not a soft one. Every print's
-         position, size, angle and stacking order is placed by hand in
-         globals.css, and there are eighteen such places. A nineteenth
-         photograph has nowhere to stand, so the pile falls back to a plain
-         grid rather than breaking the composition — see PanelPhotos. */
-      { src: "/images/gallery/placeholder-7.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-8.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-9.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-10.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-11.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-12.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-13.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-14.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-15.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-16.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-17.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
-      { src: "/images/gallery/placeholder-18.png", alt: "[Describe this photo]", width: 1200, height: 1200 },
+      Every `alt` describes the photograph it sits on. They are what a
+      screen reader reads aloud and what shows if an image fails to load,
+      so if you reorder or replace a file, move its description with it.
+
+      EIGHTEEN IS A HARD CEILING, not a soft one. Every print's position,
+      size and stacking order is placed by hand in globals.css, and there
+      are eighteen such places. A nineteenth photograph has nowhere to
+      stand, so the pile falls back to a plain grid rather than breaking
+      the composition — see PanelPhotos.
+
+      The tiles crop to fill, and the collage mixes square, portrait and
+      landscape cells, so a photograph will not always be shown in its own
+      shape. Anything with a face near an edge is the one thing to check
+      after a reorder.
+    */
+    images: [
+      { src: "/images/invitation/IMG_3900.jpg", alt: "Ana on John's back under a big tree, both of them laughing", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_3915.jpg", alt: "John handing Ana a bouquet while she sits on a scooter in a veil", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_3936.jpg", alt: "Ana and John sitting on brick steps, hands held between them", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_3943.jpg", alt: "Ana and John either side of a stone marker, palms pressed together", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_3972.jpg", alt: "Ana in a veil holding her bouquet, standing close to John on a garden path", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4009.jpg", alt: "Ana and John laughing face to face, the bouquet between them", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4048.jpg", alt: "The two of them at an old stone well, water spraying up between them", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4063.jpg", alt: "Ana and John posing in front of the giant painted figures in the park", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4064.jpg", alt: "Ana and John hugging on the lawn, the giant figures behind them", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_4068.jpg", alt: "The two of them sitting on a rock under a canopy of branches", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_4092.jpg", alt: "Ana and John arm in arm in front of a tall rock formation", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_4101.jpg", alt: "Ana and John crouched together on the grass, smiling at the camera", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4109.jpg", alt: "John with his arms around Ana as they sit on the grass", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_4119.jpg", alt: "Ana and John sitting back to back on the grass", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4145.jpg", alt: "The two of them leaning into each other on the grass, laughing", width: 2048, height: 1536 },
+      { src: "/images/invitation/IMG_4175.jpg", alt: "Ana and John facing each other at night, his hand at her cheek", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_4199.jpg", alt: "John on one knee proposing to Ana under a street light at night", width: 1536, height: 2048 },
+      { src: "/images/invitation/IMG_4202.jpg", alt: "Ana and John close together at night, her ring hand raised, seen through leaves", width: 1536, height: 2048 },
     ],
   },
 
   /** Hero photo. Swap for a real one — this is the first thing guests see. */
   heroImage: {
-    src: "/images/hero.png",
-    alt: "Three wedding rings resting on ivory linen, scattered with pink rose petals",
+    src: "/images/hero2.png",
+    alt: "Two gold and white wedding bands resting together, pink rose petals scattered around them",
   },
 
   /*
@@ -292,12 +360,19 @@ export const wedding = {
   },
 
   /* ── Gifts ───────────────────────────────────────────────────
-     Both QR codes are OPTIONAL. Leave a `qr` as undefined and that
-     card simply does not render — no empty box, no broken image. */
+     Every `qr` is OPTIONAL. Set one to undefined and that card simply
+     renders without a code — no empty box, no broken image.
+
+     The four PNGs were cut out of app screenshots by scripts/crop-qr.mjs,
+     which finds the code by measuring rather than by a hardcoded box, and
+     paints its own white quiet zone. Re-run it if a screenshot is
+     replaced. The screenshots themselves stay in this folder as the
+     source, and are not referenced by the site: each one carries the
+     account holder's real name, which the crop removes. */
   gifts: {
     heading: "Gifts",
     message:
-      "Your presence on our wedding day is the greatest gift of all. Should you wish to bless us with something more, a contribution toward our life together would be warmly appreciated.",
+      "Having you there is honestly the best gift we could ask for. If you'd still like to give something, anything you can put toward our life together would mean a lot to us.",
     /*
       Four ways to send something, each with its provider's mark.
 
@@ -319,36 +394,31 @@ export const wedding = {
     methods: [
       {
         name: "GCash",
-        accountName: "[ACCOUNT NAME]",
-        accountNumber: "[09XX XXX XXXX]",
+        accountNumber: "0995 458 9142",
         logo: "/images/banks/g-cash-logo.png" as string | undefined,
         logoScale: 1,
-        /** e.g. "/images/qr/gcash.png" — save your QR screenshot there. */
-        qr: undefined as string | undefined,
+        qr: "/images/banks/gcash-qr.png" as string | undefined,
       },
       {
         name: "Maya",
-        accountName: "[ACCOUNT NAME]",
-        accountNumber: "[09XX XXX XXXX]",
+        accountNumber: "0995 458 9142",
         logo: "/images/banks/maya-logo.jpg" as string | undefined,
         logoScale: 1,
-        qr: undefined as string | undefined,
+        qr: "/images/banks/maya-qr.png" as string | undefined,
       },
       {
         name: "BDO",
-        accountName: "[ACCOUNT NAME]",
-        accountNumber: "[0000 0000 0000]",
+        accountNumber: "00655 018 192",
         /* A clean 400x400 mark on white. It replaced a screenshot that had
            an editor's transparency checkerboard baked into its pixels and
            had to be repaired by colour; this one needed nothing. */
         logo: "/images/banks/bdo-logo.webp" as string | undefined,
         logoScale: 1,
-        qr: undefined as string | undefined,
+        qr: "/images/banks/bdo-qr.png" as string | undefined,
       },
       {
         name: "MariBank",
-        accountName: "[ACCOUNT NAME]",
-        accountNumber: "[0000 0000 0000]",
+        accountNumber: "1318 838 0487",
         logo: "/images/banks/maribank-logo.png" as string | undefined,
         /*
           1.35, and the reason is optical rather than a fault in the file.
@@ -374,7 +444,7 @@ export const wedding = {
           row.
         */
         logoScale: 1.35,
-        qr: undefined as string | undefined,
+        qr: "/images/banks/maribank-qr.png" as string | undefined,
       },
     ],
   },
@@ -386,7 +456,7 @@ export const wedding = {
     deadline: "2026-11-11",
     /** Shown under the reply deadline. Set to "" to hide it. */
     plusOneNote:
-      "We have one seat reserved in your name. Kindly note we are not able to welcome plus-ones on the day.",
+      "We've saved one seat in your name. We're sorry we can't fit plus-ones this time.",
     /** Optional — a number guests can call if the form gives them trouble. */
     contactNumber: "[09XX XXX XXXX]",
   },
@@ -403,5 +473,20 @@ export const wedding = {
     url: "",
   },
 } as const;
+
+/*
+  Which of the two events may show its venue. The id lives on the event
+  itself, so a component holding a WeddingEvent can answer the question
+  without knowing which flag it maps to.
+*/
+export function venueIsPublic(eventId: string): boolean {
+  return eventId === "ceremony"
+    ? wedding.reveal.ceremonyVenue
+    : wedding.reveal.gatheringVenue;
+}
+
+/** True when at least one venue is public, which is what Panel IV needs. */
+export const anyVenuePublic =
+  wedding.reveal.ceremonyVenue || wedding.reveal.gatheringVenue;
 
 export type Wedding = typeof wedding;
