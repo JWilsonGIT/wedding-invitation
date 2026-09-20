@@ -148,7 +148,7 @@ export const wedding = {
          one listing publishes them, so they are worth a look on Maps
          before this goes out. Waze falls back to `mapsQuery` if removed. */
       coords: "14.5302192,121.1717403",
-      note: "Just a relaxed lunch together. No speeches, so come hungry.",
+      note: "Just a relaxed meal together. No speeches, so come hungry.",
     },
   ] satisfies WeddingEvent[],
 
@@ -158,7 +158,7 @@ export const wedding = {
     heading: "Together with our families",
     body: [
       "We're getting married, and we'd really love for you to be there.",
-      "It's a simple day: a ceremony at the church, then lunch together at Perlie's Garden. No long program, just the people we love in one room.",
+      "It's a simple day: a ceremony at the church, then a meal together at Perlie's Garden. No long program, just the people we love in one room.",
     ],
   },
 
