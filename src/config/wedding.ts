@@ -453,12 +453,14 @@ export const wedding = {
   rsvp: {
     heading: "Will you join us?",
     /** ISO date. Shown to guests as a friendly deadline. */
-    deadline: "2026-11-11",
+    deadline: "2026-10-10",
     /** Shown under the reply deadline. Set to "" to hide it. */
     plusOneNote:
       "We've saved one seat in your name. We're sorry we can't fit plus-ones this time.",
     /** Optional — a number guests can call if the form gives them trouble. */
-    contactNumber: "[09XX XXX XXXX]",
+    /* Grouped 4-3-4 to match the gift account numbers above; the digits
+       are 09274560613. */
+    contactNumber: "0927 456 0613",
   },
 
   /* ── Site metadata ───────────────────────────────────────────
