@@ -248,9 +248,13 @@ export const wedding = {
       alt: "",
     },
     /*
-      THE REAL PHOTOGRAPHS, in the order they were taken, so the set reads
-      as the day it was: messing about in the park, then the garden, then
-      the proposal after dark at the end.
+      THE REAL PHOTOGRAPHS. The engagement shoot runs in the order it was
+      taken, so the set reads as the day it was: messing about in the park,
+      then the garden, then the proposal after dark at the end.
+
+      TWO ARE NOT FROM THAT DAY. Positions 4 and 6 are from the office, and
+      they sit there on purpose rather than by date — this is a chosen
+      arrangement now, not a timeline, so do not "fix" it by sorting.
 
       Every `alt` describes the photograph it sits on. They are what a
       screen reader reads aloud and what shows if an image fails to load,
@@ -271,9 +275,9 @@ export const wedding = {
       { src: "/images/invitation/IMG_3900.jpg", alt: "Ana on John's back under a big tree, both of them laughing", width: 1536, height: 2048 },
       { src: "/images/invitation/IMG_3915.jpg", alt: "John handing Ana a bouquet while she sits on a scooter in a veil", width: 1536, height: 2048 },
       { src: "/images/invitation/IMG_3936.jpg", alt: "Ana and John sitting on brick steps, hands held between them", width: 1536, height: 2048 },
-      { src: "/images/invitation/IMG_3943.jpg", alt: "Ana and John either side of a stone marker, palms pressed together", width: 2048, height: 1536 },
+      { src: "/images/invitation/office-map-wall.jpg", alt: "Ana sitting in a wicker chair at work, John perched on the arm beside her, the office world map behind them", width: 1500, height: 2000 },
       { src: "/images/invitation/IMG_3972.jpg", alt: "Ana in a veil holding her bouquet, standing close to John on a garden path", width: 2048, height: 1536 },
-      { src: "/images/invitation/IMG_4009.jpg", alt: "Ana and John laughing face to face, the bouquet between them", width: 2048, height: 1536 },
+      { src: "/images/invitation/office-garden.jpg", alt: "John with his arms around Ana in the office garden, palms and orange flowers above them", width: 1500, height: 2000 },
       { src: "/images/invitation/IMG_4048.jpg", alt: "The two of them at an old stone well, water spraying up between them", width: 2048, height: 1536 },
       { src: "/images/invitation/IMG_4063.jpg", alt: "Ana and John posing in front of the giant painted figures in the park", width: 2048, height: 1536 },
       { src: "/images/invitation/IMG_4064.jpg", alt: "Ana and John hugging on the lawn, the giant figures behind them", width: 1536, height: 2048 },
