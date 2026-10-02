@@ -79,11 +79,19 @@ const title = `${wedding.couple.shortNames}, ${formatLongDate(wedding.date)}`;
 */
 const description = (() => {
   const [ceremony, gathering] = wedding.events;
+  /* The hour travels WITH the church and never on its own. Both branches
+     that use this already name the venue, and the third names nothing at
+     all — a preview reading "our wedding ceremony at 3:00 PM" with no
+     place would look like a detail withheld on purpose, which is worse
+     than the silence it replaced. */
+  const at = wedding.reveal.ceremonyTime
+    ? `${ceremony.venue} at ${ceremony.time}`
+    : ceremony.venue;
   if (wedding.reveal.ceremonyVenue && wedding.reveal.gatheringVenue) {
-    return `Please join us for our wedding ceremony at ${ceremony.venue}, followed by a meal together at ${gathering.venue}. Kindly RSVP.`;
+    return `Please join us for our wedding ceremony at ${at}, followed by a meal together at ${gathering.venue}. Kindly RSVP.`;
   }
   if (wedding.reveal.ceremonyVenue) {
-    return `Please join us for our wedding ceremony at ${ceremony.venue}. The rest of the details are still to be announced. Kindly RSVP.`;
+    return `Please join us for our wedding ceremony at ${at}. The rest of the details are still to be announced. Kindly RSVP.`;
   }
   return "We're getting married, and we'd love you there. The where and when are still to be announced. Please let us know if you can make it.";
 })();

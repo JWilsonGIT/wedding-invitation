@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { wedding, venueIsPublic, type WeddingEvent } from "@/config/wedding";
+import { wedding, venueIsPublic, timeIsPublic, type WeddingEvent } from "@/config/wedding";
 import { MapEmbed } from "../MapEmbed";
 import { Chair } from "./SceneObject";
 
@@ -107,7 +107,7 @@ export function PanelWhere({
                 className={`stagger-${i + 3} where-tab ${which === i ? "is-on" : ""}`}
               >
                 <span className="where-tab-label">{v.label}</span>
-                {wedding.reveal.times ? (
+                {timeIsPublic(v.id) ? (
                   <span className="where-tab-time">{v.time}</span>
                 ) : null}
               </button>

@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
-import { wedding, anyVenuePublic, venueIsPublic, type WeddingEvent } from "@/config/wedding";
+import {
+  wedding,
+  anyVenuePublic,
+  venueIsPublic,
+  timeIsPublic,
+  type WeddingEvent,
+} from "@/config/wedding";
 import { formatFullDate } from "@/lib/date";
 import { Signpost } from "./SceneObject";
 import { Tilt } from "../Tilt";
@@ -35,7 +41,7 @@ type CardId = "ceremony" | "gathering" | "attire" | "gifts";
   in the grid rather than as a longer name.
 */
 function eventMeta(event: WeddingEvent): string {
-  if (wedding.reveal.times) return event.time;
+  if (timeIsPublic(event.id)) return event.time;
   if (venueIsPublic(event.id)) return event.venueMeta ?? event.venue;
   return wedding.detailsPlaceholder;
 }
@@ -355,7 +361,7 @@ function VenueSheet({
       {/* The time is its own switch: this sheet can name a place while
           the hour is still unsettled, which is the state the invitation
           is actually in. */}
-      {wedding.reveal.times ? <p className="sheet-time">{event.time}</p> : null}
+      {timeIsPublic(event.id) ? <p className="sheet-time">{event.time}</p> : null}
       {showVenue ? <p className="sheet-address">{event.address}</p> : null}
       {event.note ? <p className="sheet-note">{event.note}</p> : null}
 

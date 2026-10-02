@@ -52,12 +52,12 @@ export type WeddingEvent = {
 
 export const wedding = {
   /* ── WHAT GUESTS ARE ALLOWED TO SEE YET ──────────────────────
-     Three switches, because the details did not become public all at
+     Four switches, because the details did not become public all at
      once. Everything below is untouched whatever these say — this is
      what is SHOWN, never what exists.
 
-     Today: the church is public, Perlie's Garden is not, and neither
-     time is.
+     Today: the church and its hour are public; Perlie's Garden and when
+     we sit down there are not.
 
      WHAT EACH ONE REACHES, so nothing is missed on the way back:
 
@@ -66,9 +66,18 @@ export const wedding = {
                        sheet's "Maps and directions" button; the
                        ceremony's map on Panel IV
        gatheringVenue  the same for Perlie's Garden
-       times           Panel I's animated hour, both door metas on
-                       Panel III, the time inside each sheet, and the
-                       second line of each tab on Panel IV
+       ceremonyTime    Panel I's animated hour; the ceremony's door meta
+                       on Panel III, the time inside its sheet, and the
+                       second line of its tab on Panel IV
+       gatheringTime   the same three for the gathering. Panel I has no
+                       second hour, so this one does not reach it.
+
+     A TIME OUTRANKS A VENUE META ON THE DOORS. Panel III's cards have
+     room for one line under the title, and an hour is the more useful
+     thing to put there, so `eventMeta` shows the time as soon as it is
+     public and falls back to the short venue line when it is not. Turning
+     ceremonyTime on therefore CHANGES that door rather than adding to it:
+     "Diocese of Antipolo" becomes "3:00 PM".
 
      PANEL IV EXISTS ONLY IF A VENUE DOES. It is maps and addresses and
      nothing else, so with both venues hidden it is dropped from the
@@ -77,9 +86,9 @@ export const wedding = {
      because a one-tab switcher reads as a broken control.
 
      THE LINK PREVIEW FOLLOWS THESE TOO. src/app/layout.tsx builds the
-     Open Graph description from whichever venues are public, because
-     that is the text Messenger and Viber show when the invitation is
-     pasted — a venue left in there is hidden from nobody.
+     Open Graph description from whichever venue and hour are public,
+     because that is the text Messenger and Viber show when the invitation
+     is pasted — a detail left in there is hidden from nobody.
 
      A MAP DISCLOSES THE VENUE TO GOOGLE whether or not the text is on
      screen, which is why the embed is gated on the same flag as the
@@ -96,8 +105,10 @@ export const wedding = {
     ceremonyVenue: true,
     /** Perlie's Garden: name and address. */
     gatheringVenue: false,
-    /** Both events' times, together. */
-    times: false,
+    /** The hour the ceremony starts. */
+    ceremonyTime: true,
+    /** When we sit down at Perlie's. Still "right after the ceremony". */
+    gatheringTime: false,
   },
   /** Stands in wherever a withheld detail used to be. */
   detailsPlaceholder: "To be announced",
@@ -125,7 +136,7 @@ export const wedding = {
       label: "The Ceremony",
       venue: "Diocesan Shrine and Parish of Saint Clement",
       venueMeta: "Diocese of Antipolo",
-      time: "11:00 AM",
+      time: "3:00 PM",
       address: "Doña Aurora St, Poblacion Ibaba, Angono, Rizal",
       /* This is the church's exact name on Google Maps, so it resolves to
          the listing itself — the pin arrives labelled rather than as a bare
@@ -489,6 +500,18 @@ export function venueIsPublic(eventId: string): boolean {
   return eventId === "ceremony"
     ? wedding.reveal.ceremonyVenue
     : wedding.reveal.gatheringVenue;
+}
+
+/**
+ * Which of the two events may show its time. Separate from the venue: the
+ * church was public for weeks before its hour was, and the gathering is
+ * the other way round in waiting — a place we can name but not yet an
+ * hour. Same signature as `venueIsPublic` so the two read alike.
+ */
+export function timeIsPublic(eventId: string): boolean {
+  return eventId === "ceremony"
+    ? wedding.reveal.ceremonyTime
+    : wedding.reveal.gatheringTime;
 }
 
 /** True when at least one venue is public, which is what Panel IV needs. */

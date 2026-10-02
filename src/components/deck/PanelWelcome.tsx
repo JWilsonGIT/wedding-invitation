@@ -179,7 +179,7 @@ export function PanelWelcome({
 
         {/* Two lines, not one separated by a dot. The venue name is long
             enough to wrap on its own at most widths, and a wrapped name
-            followed by "· 11:00 AM" reads as a fragment rather than as a
+            followed by "· 3:00 PM" reads as a fragment rather than as a
             time. Blocks rather than a <br>, so the split survives the name
             wrapping and the time never ends up orphaned mid-line. */}
         <p className="stagger-7 panel-welcome-venue">
@@ -198,13 +198,13 @@ export function PanelWelcome({
             written names above.
 
             NBSP for the space, because a plain space between two
-            inline-blocks collapses and "11:00AM" is not the time.
+            inline-blocks collapses and "3:00PM" is not the time.
           */}
           {/* The hour goes with the venue: see wedding.ts. The whole block
               is dropped rather than replaced, because the name above has
               already said "To be announced" and saying it twice reads as
               a fault. */}
-          {wedding.reveal.times ? (
+          {wedding.reveal.ceremonyTime ? (
           <span className="panel-welcome-venue-time">
             <span className="sr-only">{ceremony.time}</span>
             <span aria-hidden="true">
