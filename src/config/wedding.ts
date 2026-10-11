@@ -468,7 +468,7 @@ export const wedding = {
   rsvp: {
     heading: "Will you join us?",
     /** ISO date. Shown to guests as a friendly deadline. */
-    deadline: "2026-10-10",
+    deadline: "2026-10-31",
     /** Shown under the reply deadline. Set to "" to hide it. */
     plusOneNote:
       "We've saved one seat in your name. We're sorry we can't fit plus-ones this time.",
