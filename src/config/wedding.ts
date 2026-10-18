@@ -56,8 +56,8 @@ export const wedding = {
      once. Everything below is untouched whatever these say — this is
      what is SHOWN, never what exists.
 
-     Today: the church and its hour are public; Perlie's Garden and when
-     we sit down there are not.
+     Today: everything is public — the church and its hour, and Scrapyard
+     Resort and when we sit down there.
 
      WHAT EACH ONE REACHES, so nothing is missed on the way back:
 
@@ -65,7 +65,7 @@ export const wedding = {
                        Panel III (name, diocese, address) and that
                        sheet's "Maps and directions" button; the
                        ceremony's map on Panel IV
-       gatheringVenue  the same for Perlie's Garden
+       gatheringVenue  the same for Scrapyard Resort
        ceremonyTime    Panel I's animated hour; the ceremony's door meta
                        on Panel III, the time inside its sheet, and the
                        second line of its tab on Panel IV
@@ -103,12 +103,12 @@ export const wedding = {
   reveal: {
     /** The church: name, Diocese of Antipolo, address, and its map. */
     ceremonyVenue: true,
-    /** Perlie's Garden: name and address. */
-    gatheringVenue: false,
+    /** Scrapyard Resort: name and address. */
+    gatheringVenue: true,
     /** The hour the ceremony starts. */
     ceremonyTime: true,
-    /** When we sit down at Perlie's. Still "right after the ceremony". */
-    gatheringTime: false,
+    /** When we sit down at Scrapyard Resort: "right after the Mass". */
+    gatheringTime: true,
   },
   /** Stands in wherever a withheld detail used to be. */
   detailsPlaceholder: "To be announced",
@@ -128,7 +128,7 @@ export const wedding = {
   date: "2026-12-11",
 
   /* ── The day, in order ───────────────────────────────────────
-     Two entries: the church, then Perlie's. The same card component
+     Two entries: the church, then Scrapyard Resort. The same card component
      renders both, so adding a third event needs no new code. */
   events: [
     {
@@ -150,15 +150,17 @@ export const wedding = {
     {
       id: "gathering",
       label: "The Gathering",
-      venue: "Perlie's Garden",
-      time: "Right after the ceremony",
-      address: "Eastridge Ave, Angono, Rizal",
-      mapsQuery: "Perlie's Garden Restaurant, Eastridge Ave, Angono, Rizal, Philippines",
-      /* About 2.5km from the church — a short drive east, up into
-         Eastridge. Single-sourced, unlike the church's coordinates: only
-         one listing publishes them, so they are worth a look on Maps
-         before this goes out. Waze falls back to `mapsQuery` if removed. */
-      coords: "14.5302192,121.1717403",
+      venue: "Scrapyard Resort",
+      time: "Right after the Mass",
+      address: "G5P3+H5W, Ilang-ilang St, Nieves Hills, Angono, Rizal",
+      /* The Plus Code is what pins this one — Google Maps resolves it
+         exactly, where the street name alone is too vague up in Nieves
+         Hills. */
+      mapsQuery: "G5P3+H5W Angono, Rizal, Philippines",
+      /* Decoded from the Plus Code G5P3+H5W (full code 7Q63G5P3+H5W), so
+         Waze lands on the same spot Google does. About 1.5km north of the
+         church. */
+      coords: "14.5364875,121.1529531",
       note: "Just a relaxed meal together. No speeches, so come hungry.",
     },
   ] satisfies WeddingEvent[],
@@ -169,7 +171,7 @@ export const wedding = {
     heading: "Together with our families",
     body: [
       "We're getting married, and we'd really love for you to be there.",
-      "It's a simple day: a ceremony at the church, then a meal together at Perlie's Garden. No long program, just the people we love in one room.",
+      "It's a simple day: a ceremony at the church, then a meal together at Scrapyard Resort. No long program, just the people we love in one room.",
     ],
   },
 
